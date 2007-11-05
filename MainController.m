@@ -11,6 +11,9 @@
 
 NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 
+float _activationDelay = 0.5;
+NSUInteger _activationModifiers = cmdKey;
+
 enum {
 	LeftDirection = 0,
 	RightDirection,
@@ -36,7 +39,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	
 	if (direction != -1) {
 		NSDictionary *info = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:direction] forKey:@"Direction"];
-		[NSTimer scheduledTimerWithTimeInterval:0.1f target:[MainController class] selector:@selector(switchToSpace:) userInfo:info repeats:NO];
+		[NSTimer scheduledTimerWithTimeInterval:_activationDelay target:[MainController class] selector:@selector(switchToSpace:) userInfo:info repeats:NO];
 	}
 	
 	return CallNextEventHandler(nextHandler, theEvent);
@@ -79,7 +82,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 + (void)switchToSpace:(NSTimer *)timer
 {
-	if (GetCurrentKeyModifiers() & cmdKey) {
+	if (_activationModifiers == 0 || (GetCurrentKeyModifiers() & _activationModifiers) == _activationModifiers) {
 		NSDictionary *info = [timer userInfo];
 		NSPoint mouseLocation = [NSEvent mouseLocation];
 		NSRect screenRect = [[NSScreen mainScreen] frame];
@@ -154,11 +157,53 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 	EventHandlerUPP handlerFunction = NewEventHandlerUPP(mouseMovedHandler);
 	InstallEventHandler(GetEventMonitorTarget(), handlerFunction, 1, &eventType, nil, &mouseHandler);
+	
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(terminate:) name:@"TerminateWarpNotification" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:@"WarpDefaultsChanged" object:nil];
+	
+	[self performSelector:@selector(defaultsChanged:)];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)note
 {
 	RemoveEventHandler(mouseHandler);
+	
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:NSApp name:@"TerminateWarpNotification" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self name:@"WarpDefaultsChanged" object:nil];
+}
+
+- (void)defaultsChanged:(NSNotification *)note
+{
+	NSUserDefaults *df = [NSUserDefaults standardUserDefaults];
+	
+	[df synchronize];
+	
+	id object = [df objectForKey:@"Delay"];
+	_activationDelay = (object) ? [object floatValue] : 0.5f;
+	
+	object = [df objectForKey:@"Modifiers"];
+	
+	if (object) {
+		_activationModifiers = 0;
+		
+		if ([[object objectForKey:@"Command"] boolValue]) {
+			_activationModifiers |= cmdKey;
+		}
+		
+		if ([[object objectForKey:@"Option"] boolValue]) {
+			_activationModifiers |= optionKey;
+		}
+		
+		if ([[object objectForKey:@"Control"] boolValue]) {
+			_activationModifiers |= controlKey;
+		}
+		
+		if ([[object objectForKey:@"Shift"] boolValue]) {
+			_activationModifiers |= shiftKey;
+		}
+	} else {
+		_activationModifiers = cmdKey;
+	}
 }
 
 @end

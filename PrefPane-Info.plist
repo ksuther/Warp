@@ -6,25 +6,25 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleIconFile</key>
-	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string>com.ksuther.warp</string>
+	<string>com.ksuther.warp.prefpane</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>Warp</string>
 	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+	<string>BNDL</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
-	<key>LSUIElement</key>
-	<string>1</string>
 	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>WarpPreferences</string>
+	<key>NSPrefPaneIconLabel</key>
+	<string>Warp</string>
+	<key>NSPrefPaneSearchParameters</key>
+	<string>Warp</string>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<string>WarpPreferences</string>
 </dict>
 </plist>
