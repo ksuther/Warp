@@ -14,6 +14,7 @@ NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 float _activationDelay = 0.5;
 NSUInteger _activationModifiers = cmdKey;
 BOOL _warpMouse = NO;
+NSRect _totalScreenRect;
 
 enum {
 	LeftDirection = 0,
@@ -23,18 +24,16 @@ enum {
 };
 
 OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, void *userData) {
-	NSEvent *event = [NSEvent eventWithEventRef:theEvent];
-	NSRect screenRect = [[NSScreen mainScreen] frame];
-	NSPoint mouseLocation = [event locationInWindow];
+	NSPoint mouseLocation = [NSEvent mouseLocation];
 	NSInteger direction = -1;
 	
-	if (mouseLocation.x == 0) {
+	if (mouseLocation.x == _totalScreenRect.origin.x) {
 		direction = LeftDirection;
-	} else if (mouseLocation.x == screenRect.size.width - 1) {
+	} else if (mouseLocation.x == _totalScreenRect.size.width - 1) {
 		direction = RightDirection;
-	} else if (mouseLocation.y == 1) {
+	} else if (mouseLocation.y == _totalScreenRect.origin.y + 1) {
 		direction = DownDirection;
-	} else if (mouseLocation.y == screenRect.size.height) {
+	} else if (mouseLocation.y == _totalScreenRect.size.height) {
 		direction = UpDirection;
 	}
 	
@@ -65,7 +64,6 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	NSInteger currentSpace = 0;
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess) {
 		//Figure out the current row and column based on the number of rows and columns
-		//NSInteger rows = [self numberOfSpacesRows];
 		NSInteger cols = [self numberOfSpacesColumns];
 		
 		*row = ((currentSpace - 1) / cols) + 1;
@@ -86,7 +84,6 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	if (_activationModifiers == 0 || (GetCurrentKeyModifiers() & _activationModifiers) == _activationModifiers) {
 		NSDictionary *info = [timer userInfo];
 		NSPoint mouseLocation = [NSEvent mouseLocation];
-		NSRect screenRect = [[NSScreen mainScreen] frame];
 		CGPoint warpLocation;
 		int row, col;
 		BOOL switchedSpace = NO;
@@ -95,35 +92,35 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		
 		switch ([[info objectForKey:@"Direction"] intValue]) {
 			case LeftDirection:
-				if (mouseLocation.x == 0 && col > 1) {
+				if (mouseLocation.x == _totalScreenRect.origin.x && col > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col - 1];
 					
-					warpLocation.x = screenRect.size.width - 20;
-					warpLocation.y = screenRect.size.height - mouseLocation.y;
+					warpLocation.x = _totalScreenRect.size.width - 20;
+					warpLocation.y = _totalScreenRect.size.height - mouseLocation.y;
 				}
 				break;
 			case RightDirection:
-				if (mouseLocation.x == screenRect.size.width - 1 && col < [MainController numberOfSpacesColumns]) {
+				if (mouseLocation.x == _totalScreenRect.size.width - 1 && col < [MainController numberOfSpacesColumns]) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col + 1];
 					
-					warpLocation.x = 20;
-					warpLocation.y = screenRect.size.height - mouseLocation.y;
+					warpLocation.x = _totalScreenRect.origin.x + 20;
+					warpLocation.y = _totalScreenRect.size.height - mouseLocation.y;
 				}
 				break;
 			case DownDirection:
-				if (mouseLocation.y == 1 && row < [MainController numberOfSpacesRows]) {
+				if (mouseLocation.y == _totalScreenRect.origin.y + 1 && row < [MainController numberOfSpacesRows]) {
 					switchedSpace = [MainController switchToSpaceRow:row + 1 column:col];
 					
 					warpLocation.x = mouseLocation.x;
-					warpLocation.y = 20;
+					warpLocation.y = _totalScreenRect.origin.y + 20;
 				}
 				break;
 			case UpDirection:
-				if (mouseLocation.y == screenRect.size.height && row > 1) {
+				if (mouseLocation.y == _totalScreenRect.size.height && row > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row - 1 column:col];
 					
 					warpLocation.x = mouseLocation.x;
-					warpLocation.y = screenRect.size.height - 20;
+					warpLocation.y = _totalScreenRect.size.height - 20;
 				}
 				break;
 		}
@@ -161,8 +158,10 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(terminate:) name:@"TerminateWarpNotification" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:@"WarpDefaultsChanged" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(screenParametersChanged:) name:NSApplicationDidChangeScreenParametersNotification object:nil];
 	
 	[self performSelector:@selector(defaultsChanged:)];
+	[self performSelector:@selector(screenParametersChanged:)];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)note
@@ -206,6 +205,17 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 	
 	_warpMouse = [df boolForKey:@"WarpMouse"];
+}
+
+- (void)screenParametersChanged:(NSNotification *)note
+{
+	NSArray *screens = [NSScreen screens];
+	
+	_totalScreenRect = NSZeroRect;
+	
+	for (NSScreen *screen in screens) {
+		_totalScreenRect = NSUnionRect(_totalScreenRect, [screen frame]);
+	}
 }
 
 @end

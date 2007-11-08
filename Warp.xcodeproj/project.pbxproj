@@ -24,6 +24,7 @@
 /* Begin PBXBuildFile section */
 		375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
 		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
+		375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */; };
 		3790F6390CDA71C400A034FA /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3790F6380CDA71C400A034FA /* MainController.m */; };
 		3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F65A0CDA73C400A034FA /* Carbon.framework */; };
 		3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F76A0CDA804300A034FA /* ApplicationServices.framework */; };
@@ -89,6 +90,7 @@
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
+		375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		3790F6370CDA71C400A034FA /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		3790F6380CDA71C400A034FA /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		3790F65A0CDA73C400A034FA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -114,6 +116,7 @@
 			files = (
 				3790F8FD0CDB05F100A034FA /* PreferencePanes.framework in Frameworks */,
 				3790FC190CDEF6F700A034FA /* ScriptingBridge.framework in Frameworks */,
+				375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,6 +151,7 @@
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */,
 				3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */,
+				375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";

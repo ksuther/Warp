@@ -9,6 +9,7 @@
 #import "WarpPreferences.h"
 #import "WarpDefaults.h"
 #import "SystemEvents.h"
+#import <SystemConfiguration/SystemConfiguration.h>
 
 #define SENDER_STATE ([sender state] == NSOnState)
 
@@ -19,6 +20,10 @@
 #define MODIFIER_CONTROL_TAG 5
 #define MODIFIER_SHIFT_TAG 6
 #define LAUNCH_AT_LOGIN_TAG 7
+
+#define UPDATE_INTERVAL 864000
+#define UPDATE_SITE [NSURL URLWithString:@"http://www.ksuther.com/warp/update.php"]
+#define UPDATE_URL_STRING @"http://www.ksuther.com/warp/checkversion.php?v=%@"
 
 NSString *WarpDaemonName = @"WarpDaemon";
 NSString *WarpBundleIdentifier = @"com.ksuther.warp";
@@ -31,6 +36,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 {
 	if ([super initWithBundle:bundle]) {
 		defaults = [[WarpDefaults alloc] init];
+		_updateResponseData = [[NSMutableData alloc] init];
 	}
 	return self;
 }
@@ -38,6 +44,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 - (void)dealloc
 {
 	[defaults release];
+	[_updateResponseData release];
 	[super dealloc];
 }
 
@@ -64,17 +71,23 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	//Check if WarpDaemon is in the login items
 	SystemEventsApplication *app = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
 	
-	[self willChangeValueForKey:@"warpEnabled"];
+	[self willChangeValueForKey:@"launchAtLogin"];
 	launchAtLogin = NO;
+	
 	for (id nextItem in [app loginItems]) {
 		if ([[nextItem name] isEqualToString:WarpDaemonName]) {
 			launchAtLogin = YES;
 			break;
 		}
 	}
-	[self didChangeValueForKey:@"warpEnabled"];
+	[self didChangeValueForKey:@"launchAtLogin"];
 	
 	[super willSelect];
+}
+
+- (void)didSelect
+{
+	[self checkForUpdates:NO];
 }
 
 - (void)willUnselect
@@ -157,6 +170,100 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	}
 	
 	launchAtLogin = enabled;
+}
+
+- (IBAction)checkForUpdatesNow:(id)sender
+{
+	[self checkForUpdates:YES];
+}
+
+- (void)checkForUpdates:(BOOL)notify
+{
+	NSTimeInterval timeSinceLastUpdate = [[defaults valueForKey:@"LastUpdate"] doubleValue];
+	
+	if (notify || timeSinceLastUpdate == 0 || [[NSDate dateWithTimeIntervalSinceReferenceDate:timeSinceLastUpdate] timeIntervalSinceNow] < -UPDATE_INTERVAL + 3600) {
+		//Check for network reachability
+		const char *host = "ksuther.com";
+		BOOL reachable;
+		SCNetworkConnectionFlags flags = 0;
+		
+		reachable = SCNetworkCheckReachabilityByName(host, &flags);
+		
+		_notifyForUpdates = notify;
+		
+		if (reachable && ((flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired))) {
+			NSURL *updateURL = [NSURL URLWithString:[NSString stringWithFormat:UPDATE_URL_STRING, [[[self bundle] infoDictionary] objectForKey:@"CFBundleVersion"]]];
+			[_updateResponseData setData:[NSData data]];
+			[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:updateURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:15] delegate:self] retain];
+		} else if (_notifyForUpdates) {
+			NSBundle *bundle = [self bundle];
+			NSString *errorTitle = NSLocalizedStringFromTableInBundle(@"Error checking for updates", nil, bundle, nil);
+			NSString *errorMsg = NSLocalizedStringFromTableInBundle(@"Warp was unable to check for updates.\n\n%@", nil, bundle, nil);
+			NSString *errorReason = NSLocalizedStringFromTableInBundle(@"Unable to contact remote host.", nil, bundle, nil);
+			
+			NSBeginAlertSheet(errorTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, errorMsg, errorReason);
+		}
+	}
+}
+
+- (void)updateSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	if (returnCode == NSOKButton) {
+		[[NSWorkspace sharedWorkspace] openURL:UPDATE_SITE];
+	}
+}
+
+#pragma mark -
+#pragma mark NSURLConnection handler methods
+#pragma mark -
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+	NSBundle *bundle = [self bundle];
+	NSString *errorTitle = NSLocalizedStringFromTableInBundle(@"Error checking for updates", nil, bundle, nil);
+	NSString *errorMsg = NSLocalizedStringFromTableInBundle(@"Warp was unable to check for updates.\n\n%@", nil, bundle, nil);
+	
+	if (_notifyForUpdates) {
+		NSBeginInformationalAlertSheet(errorTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, errorMsg, [error localizedDescription]);
+	}
+	
+	[_updateResponseData setData:[NSData data]];
+	[connection release];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+	[_updateResponseData appendData:data];
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+	NSString *string = [[NSString alloc] initWithData:_updateResponseData encoding:NSASCIIStringEncoding];
+	NSArray *lines = [string componentsSeparatedByString:@"\n"];
+	NSDictionary *infoDictionary = [[self bundle] infoDictionary];
+	NSString *currentVersionString = [infoDictionary objectForKey:@"CFBundleVersion"];
+	
+	[_updateResponseData setData:[NSData data]];
+	
+	if ([[lines objectAtIndex:0] intValue] > [[infoDictionary objectForKey:@"VersionNumber"] intValue]) {
+		NSBundle *bundle = [self bundle];
+		NSString *updateTitle = NSLocalizedStringFromTableInBundle(@"Update available", nil, bundle, nil);
+		NSString *updateMessage = NSLocalizedStringFromTableInBundle(@"Warp %@ is available. Would you like to download the latest version? Version %@ is currently installed.", nil, bundle, nil);
+		NSString *moreInfo = NSLocalizedStringFromTableInBundle(@"Download", nil, bundle, nil);
+		NSString *ignore = NSLocalizedStringFromTableInBundle(@"Ignore", nil, bundle, nil);
+		
+		NSBeginInformationalAlertSheet(updateTitle, moreInfo, ignore, nil,  [[self mainView] window], self, @selector(updateSheetDidEnd:returnCode:contextInfo:), nil, nil, updateMessage, [lines objectAtIndex:1], currentVersionString);
+	} else if (_notifyForUpdates) {
+		NSBundle *bundle = [self bundle];
+		NSString *noupdateTitle = NSLocalizedStringFromTableInBundle(@"No updates found", nil, bundle, nil);
+		NSString *noupdateMessage = NSLocalizedStringFromTableInBundle(@"Warp %@ is the newest version available.", nil, bundle, nil);
+		
+		NSBeginInformationalAlertSheet(noupdateTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, noupdateMessage, currentVersionString);
+	}
+	
+	[connection release];
+	
+	[defaults setValue:[NSNumber numberWithDouble:[NSDate timeIntervalSinceReferenceDate]] forKey:@"LastUpdate"];
 }
 
 @end

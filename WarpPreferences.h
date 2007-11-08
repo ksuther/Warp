@@ -18,11 +18,17 @@ extern NSString *WarpBundleIdentifier;
 	
 	BOOL warpEnabled, launchAtLogin;
 	WarpDefaults *defaults;
+	
+	NSMutableData *_updateResponseData;
+	BOOL _notifyForUpdates;
 }
 
 @property BOOL warpEnabled;
 @property BOOL launchAtLogin;
 
 - (BOOL)isWarpDaemonRunning;
+
+- (IBAction)checkForUpdatesNow:(id)sender;
+- (void)checkForUpdates:(BOOL)notify;
 
 @end
