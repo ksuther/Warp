@@ -14,6 +14,8 @@ extern NSString *WarpBundleIdentifier;
 @class WarpDefaults;
 
 @interface WarpPreferences : NSPreferencePane {
+	IBOutlet NSTextView *_aboutTextView;
+	
 	BOOL warpEnabled, launchAtLogin;
 	WarpDefaults *defaults;
 }

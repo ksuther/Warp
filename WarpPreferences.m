@@ -52,6 +52,10 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceNotificationReceived:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceNotificationReceived:) name:NSWorkspaceDidTerminateApplicationNotification object:nil];
 	
+	//Set about string
+	NSDictionary *linkAttributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSURL URLWithString:@"http://www.ksuther.com/warp/"], NSLinkAttributeName, [NSCursor pointingHandCursor], NSCursorAttributeName, nil];
+	[[_aboutTextView textStorage] addAttributes:linkAttributes range:NSMakeRange(0, [[_aboutTextView textStorage] length])];
+	
 	//Restore preferences
 	[self willChangeValueForKey:@"warpEnabled"];
 	warpEnabled = [self isWarpDaemonRunning];

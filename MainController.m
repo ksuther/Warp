@@ -13,6 +13,7 @@ NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 
 float _activationDelay = 0.5;
 NSUInteger _activationModifiers = cmdKey;
+BOOL _warpMouse = NO;
 
 enum {
 	LeftDirection = 0,
@@ -127,7 +128,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				break;
 		}
 		
-		if (switchedSpace) {
+		if (switchedSpace && _warpMouse) {
 			CGWarpMouseCursorPosition(warpLocation);
 		}
 	}
@@ -203,6 +204,8 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	if ([shift boolValue]) {
 		_activationModifiers |= shiftKey;
 	}
+	
+	_warpMouse = [df boolForKey:@"WarpMouse"];
 }
 
 @end
