@@ -181,28 +181,27 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	id object = [df objectForKey:@"Delay"];
 	_activationDelay = (object) ? [object floatValue] : 0.5f;
 	
-	object = [df objectForKey:@"Modifiers"];
+	id command = [df objectForKey:@"CommandModifier"];
+	id option = [df objectForKey:@"OptionModifier"];
+	id control = [df objectForKey:@"ControlModifier"];
+	id shift = [df objectForKey:@"ShiftModifier"];
 	
-	if (object) {
-		_activationModifiers = 0;
-		
-		if ([[object objectForKey:@"Command"] boolValue]) {
-			_activationModifiers |= cmdKey;
-		}
-		
-		if ([[object objectForKey:@"Option"] boolValue]) {
-			_activationModifiers |= optionKey;
-		}
-		
-		if ([[object objectForKey:@"Control"] boolValue]) {
-			_activationModifiers |= controlKey;
-		}
-		
-		if ([[object objectForKey:@"Shift"] boolValue]) {
-			_activationModifiers |= shiftKey;
-		}
-	} else {
-		_activationModifiers = cmdKey;
+	_activationModifiers = 0;
+	
+	if ([command boolValue]) {
+		_activationModifiers |= cmdKey;
+	}
+	
+	if ([option boolValue]) {
+		_activationModifiers |= optionKey;
+	}
+	
+	if ([control boolValue]) {
+		_activationModifiers |= controlKey;
+	}
+	
+	if ([shift boolValue]) {
+		_activationModifiers |= shiftKey;
 	}
 }
 

@@ -7,6 +7,8 @@
 //
 
 #import "WarpPreferences.h"
+#import "WarpDefaults.h"
+#import "SystemEvents.h"
 
 #define SENDER_STATE ([sender state] == NSOnState)
 
@@ -16,46 +18,27 @@
 #define MODIFIER_OPTION_TAG 4
 #define MODIFIER_CONTROL_TAG 5
 #define MODIFIER_SHIFT_TAG 6
+#define LAUNCH_AT_LOGIN_TAG 7
 
+NSString *WarpDaemonName = @"WarpDaemon";
 NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 
 @implementation WarpPreferences
 
-+ (BOOL)isWarpDaemonRunning
-{
-	ProcessSerialNumber number = {kNoProcess, kNoProcess};
-	NSDictionary *processInfo;
+@synthesize warpEnabled, launchAtLogin;
 
-	while (GetNextProcess(&number) == noErr)  {
-		processInfo = (NSDictionary *)ProcessInformationCopyDictionary(&number, kProcessDictionaryIncludeAllInformationMask);
-		
-		if ([[processInfo objectForKey:(NSString *)kCFBundleIdentifierKey] isEqualToString:WarpBundleIdentifier]) {
-			return YES;
-		}
-		
-		[processInfo release];
+- (id)initWithBundle:(NSBundle *)bundle
+{
+	if ([super initWithBundle:bundle]) {
+		defaults = [[WarpDefaults alloc] init];
 	}
-	return NO;
+	return self;
 }
 
-+ (void)setObject:(id)object forKey:(NSString *)key
+- (void)dealloc
 {
-	NSUserDefaults *df = [NSUserDefaults standardUserDefaults];
-	NSMutableDictionary *dictionary = [[[df persistentDomainForName:WarpBundleIdentifier] mutableCopy] autorelease];
-	
-	if (!dictionary) {
-		dictionary = [NSMutableDictionary dictionary];
-	}
-	
-	[dictionary setObject:object forKey:key];
-	[df setPersistentDomain:dictionary forName:WarpBundleIdentifier];
-	
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"WarpDefaultsChanged" object:nil];
-}
-
-+ (id)objectForKey:(NSString *)key
-{
-	return [(id)CFPreferencesCopyAppValue((CFStringRef)key, (CFStringRef)WarpBundleIdentifier) autorelease];
+	[defaults release];
+	[super dealloc];
 }
 
 - (NSString *)mainNibName
@@ -70,22 +53,22 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceNotificationReceived:) name:NSWorkspaceDidTerminateApplicationNotification object:nil];
 	
 	//Restore preferences
-	[_warpEnabledCheckbox setState:[WarpPreferences isWarpDaemonRunning] ? NSOnState : NSOffState];
+	[self willChangeValueForKey:@"warpEnabled"];
+	warpEnabled = [self isWarpDaemonRunning];
+	[self didChangeValueForKey:@"warpEnabled"];
 	
-	float delay = [[WarpPreferences objectForKey:@"Delay"] floatValue];
-	[_activationDelaySlider setFloatValue:delay];
-	[_activationDelayTextField setFloatValue:delay];
+	//Check if WarpDaemon is in the login items
+	SystemEventsApplication *app = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
 	
-	id modifiers = [WarpPreferences objectForKey:@"Modifiers"];
-	
-	if (modifiers) {
-		[_commandKeyCheckbox setState:[[modifiers objectForKey:@"Command"] boolValue] ? NSOnState : NSOffState];
-		[_optionKeyCheckbox setState:[[modifiers objectForKey:@"Option"] boolValue] ? NSOnState : NSOffState];
-		[_controlKeyCheckbox setState:[[modifiers objectForKey:@"Control"] boolValue] ? NSOnState : NSOffState];
-		[_shiftKeyCheckbox setState:[[modifiers objectForKey:@"Shift"] boolValue] ? NSOnState : NSOffState];
-	} else {
-		[_commandKeyCheckbox setState:NSOnState];
+	[self willChangeValueForKey:@"warpEnabled"];
+	launchAtLogin = NO;
+	for (id nextItem in [app loginItems]) {
+		if ([[nextItem name] isEqualToString:WarpDaemonName]) {
+			launchAtLogin = YES;
+			break;
+		}
 	}
+	[self didChangeValueForKey:@"warpEnabled"];
 	
 	[super willSelect];
 }
@@ -98,73 +81,78 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 - (void)workspaceNotificationReceived:(NSNotification *)note
 {
 	if ([[[note userInfo] objectForKey:@"NSApplicationBundleIdentifier"] isEqualToString:WarpBundleIdentifier]) {
-		if ([[note name] isEqualToString:NSWorkspaceDidLaunchApplicationNotification]) {
-			//Warp daemon launched
-			[_warpEnabledCheckbox setState:NSOnState];
+		[self willChangeValueForKey:@"warpEnabled"];
+		warpEnabled = [[note name] isEqualToString:NSWorkspaceDidLaunchApplicationNotification];
+		[self didChangeValueForKey:@"warpEnabled"];
+	}
+}
+
+- (BOOL)isWarpDaemonRunning
+{
+	ProcessSerialNumber number = {kNoProcess, kNoProcess};
+	NSDictionary *processInfo;
+	
+	while (GetNextProcess(&number) == noErr)  {
+		processInfo = (NSDictionary *)ProcessInformationCopyDictionary(&number, kProcessDictionaryIncludeAllInformationMask);
+		
+		if ([[processInfo objectForKey:(NSString *)kCFBundleIdentifierKey] isEqualToString:WarpBundleIdentifier]) {
+			return YES;
+		}
+		
+		[processInfo release];
+	}
+	
+	return NO;
+}
+
+- (void)setWarpEnabled:(BOOL)enabled
+{
+	if (enabled) {
+		//Launch Warp
+		NSString *daemonPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"WarpDaemon" ofType:@"app"];
+		
+		if (daemonPath) {
+			[[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:[NSURL fileURLWithPath:daemonPath]]
+							withAppBundleIdentifier:nil
+											options:NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchWithoutActivation | NSWorkspaceLaunchAsync
+					additionalEventParamDescriptor:nil
+								launchIdentifiers:nil];
 		} else {
-			//Warp daemon quit
-			[_warpEnabledCheckbox setState:NSOffState];
+			NSBundle *bundle = [self bundle];
+			NSString *title = NSLocalizedStringFromTableInBundle(@"Resource missing", nil, bundle, nil);
+			NSString *message = NSLocalizedStringFromTableInBundle(@"Warp is missing a resource required to function. Please reinstall Warp.", nil, bundle, nil);
+			
+			NSBeginAlertSheet(title, nil, nil, nil, [[self mainView] window], nil, nil, nil, nil, message);
+		}
+	} else {
+		//Tell Warp to quit
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"TerminateWarpNotification" object:nil];
+	}
+	
+	warpEnabled = enabled;
+}
+
+- (void)setLaunchAtLogin:(BOOL)enabled
+{
+	SystemEventsApplication *app = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
+	
+	if (enabled) {
+		//Add to login items
+		NSDictionary *properties = [NSDictionary dictionaryWithObjectsAndKeys:[[NSBundle bundleForClass:[self class]] pathForResource:WarpDaemonName ofType:@"app"], @"path", [NSNumber numberWithBool:NO], @"hidden", nil];
+		SBObject *object = [[[SBObject alloc] initWithElementCode:'logi' properties:properties data:nil] autorelease];
+		
+		[[app loginItems] addObject:object];
+	} else {
+		//Remove from login items
+		for (id nextItem in [app loginItems]) {
+			if ([[nextItem name] isEqualToString:WarpDaemonName]) {
+				[[app loginItems] removeObject:nextItem];
+				break;
+			}
 		}
 	}
-}
-
-#pragma mark -
-#pragma mark IBActions
-#pragma mark -
-
-- (IBAction)changeWarpSetting:(id)sender
-{
-	switch ([sender tag]) {
-		case WARP_ENABLED_TAG:
-			if ([sender state] == NSOffState) {
-				//Tell Warp to quit
-				[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"TerminateWarpNotification" object:nil];
-			} else {
-				//Launch Warp
-				NSString *daemonPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"WarpDaemon" ofType:@"app"];
-				
-				if (daemonPath) {
-					[[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:[NSURL fileURLWithPath:daemonPath]]
-									withAppBundleIdentifier:nil
-													options:NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchWithoutActivation | NSWorkspaceLaunchAsync
-							additionalEventParamDescriptor:nil
-										launchIdentifiers:nil];
-				} else {
-					#warning WARN - DAEMON NOT FOUND
-				}
-			}
-			break;
-		case ACTIVATION_DELAY_TAG:
-			[WarpPreferences setObject:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"Delay"];
-			[_activationDelayTextField setFloatValue:[sender floatValue]];
-			break;
-	}
-}
-
-- (IBAction)changeModifierSetting:(id)sender
-{
-	NSMutableDictionary *modifiers = [[[WarpPreferences objectForKey:@"Modifiers"] mutableCopy] autorelease];
 	
-	if (!modifiers) {
-		modifiers = [NSMutableDictionary dictionary];
-	}
-	
-	switch ([sender tag]) {
-		case MODIFIER_COMMAND_TAG:
-			[modifiers setObject:[NSNumber numberWithBool:SENDER_STATE] forKey:@"Command"];
-			break;
-		case MODIFIER_OPTION_TAG:
-			[modifiers setObject:[NSNumber numberWithBool:SENDER_STATE] forKey:@"Option"];
-			break;
-		case MODIFIER_CONTROL_TAG:
-			[modifiers setObject:[NSNumber numberWithBool:SENDER_STATE] forKey:@"Control"];
-			break;
-		case MODIFIER_SHIFT_TAG:
-			[modifiers setObject:[NSNumber numberWithBool:SENDER_STATE] forKey:@"Shift"];
-			break;
-	}
-	
-	[WarpPreferences setObject:modifiers forKey:@"Modifiers"];
+	launchAtLogin = enabled;
 }
 
 @end

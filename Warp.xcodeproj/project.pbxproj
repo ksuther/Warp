@@ -22,6 +22,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
+		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
 		3790F6390CDA71C400A034FA /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3790F6380CDA71C400A034FA /* MainController.m */; };
 		3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F65A0CDA73C400A034FA /* Carbon.framework */; };
 		3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F76A0CDA804300A034FA /* ApplicationServices.framework */; };
@@ -30,6 +32,7 @@
 		3790F8F50CDB05CE00A034FA /* WarpPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 3790F8F40CDB05CE00A034FA /* WarpPreferences.m */; };
 		3790F8FD0CDB05F100A034FA /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */; };
 		3790F9150CDB864E00A034FA /* WarpPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3790F9130CDB864E00A034FA /* WarpPreferences.xib */; };
+		3790FC190CDEF6F700A034FA /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -41,21 +44,21 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D1107260486CEB800E47090 /* Warp */;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
 			remoteInfo = Warp;
 		};
 		3790F8CD0CDB044300A034FA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 3790F8BF0CDB042200A034FA /* Preference Pane */;
+			remoteGlobalIDString = 3790F8BF0CDB042200A034FA;
 			remoteInfo = "Preference Pane";
 		};
 		3790F8CF0CDB044B00A034FA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D1107260486CEB800E47090 /* Warp */;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
 			remoteInfo = Warp;
 		};
 /* End PBXContainerItemProxy section */
@@ -83,6 +86,9 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Warp_Prefix.pch; sourceTree = "<group>"; };
+		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
+		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
+		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
 		3790F6370CDA71C400A034FA /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		3790F6380CDA71C400A034FA /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		3790F65A0CDA73C400A034FA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -95,6 +101,8 @@
 		3790F8F40CDB05CE00A034FA /* WarpPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpPreferences.m; sourceTree = "<group>"; };
 		3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = /System/Library/Frameworks/PreferencePanes.framework; sourceTree = "<absolute>"; };
 		3790F9140CDB864E00A034FA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
+		3790FB500CDEF6E500A034FA /* SystemEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemEvents.h; sourceTree = "<group>"; };
+		3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = /System/Library/Frameworks/ScriptingBridge.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* WarpDaemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WarpDaemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -105,6 +113,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3790F8FD0CDB05F100A034FA /* PreferencePanes.framework in Frameworks */,
+				3790FC190CDEF6F700A034FA /* ScriptingBridge.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,6 +147,7 @@
 				3790F65A0CDA73C400A034FA /* Carbon.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */,
+				3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -189,6 +199,7 @@
 				8D1107310486CEB800E47090 /* Info.plist */,
 				3790F8C10CDB042200A034FA /* PrefPane-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				375166BE0CE2C6C500B39CD3 /* Localizable.strings */,
 				3790F8E70CDB057E00A034FA /* Warp.searchTerms */,
 				3790F9130CDB864E00A034FA /* WarpPreferences.xib */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
@@ -208,8 +219,11 @@
 		3790F8F20CDB05B200A034FA /* Preference Pane */ = {
 			isa = PBXGroup;
 			children = (
+				3790FB500CDEF6E500A034FA /* SystemEvents.h */,
 				3790F8F30CDB05CE00A034FA /* WarpPreferences.h */,
 				3790F8F40CDB05CE00A034FA /* WarpPreferences.m */,
+				375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */,
+				375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */,
 			);
 			name = "Preference Pane";
 			sourceTree = "<group>";
@@ -279,6 +293,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3790F9150CDB864E00A034FA /* WarpPreferences.xib in Resources */,
+				375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3790F8F50CDB05CE00A034FA /* WarpPreferences.m in Sources */,
+				375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +362,14 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 			);
 			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		375166BE0CE2C6C500B39CD3 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				375166BF0CE2C6C500B39CD3 /* English */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 		3790F9130CDB864E00A034FA /* WarpPreferences.xib */ = {
