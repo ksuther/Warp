@@ -203,7 +203,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 		_notifyForUpdates = notify;
 		
 		if (reachable && ((flags & kSCNetworkFlagsReachable) && !(flags & kSCNetworkFlagsConnectionRequired))) {
-			NSURL *updateURL = [NSURL URLWithString:[NSString stringWithFormat:UPDATE_URL_STRING, [[[self bundle] infoDictionary] objectForKey:@"CFBundleVersion"]]];
+			NSURL *updateURL = [NSURL URLWithString:[NSString stringWithFormat:UPDATE_URL_STRING, [[[self bundle] infoDictionary] objectForKey:@"VersionNumber"]]];
 			[_updateResponseData setData:[NSData data]];
 			[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:updateURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:15] delegate:self] retain];
 		} else if (_notifyForUpdates) {
