@@ -88,6 +88,16 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 - (void)didSelect
 {
 	[self checkForUpdates:NO];
+	
+	//Using Scripting Bridge to the get the Spaces enabled property from System Events doesn't seem to work
+	CFPreferencesAppSynchronize(CFSTR("com.apple.dock"));
+	if (!CFPreferencesGetAppBooleanValue(CFSTR("workspaces"), CFSTR("com.apple.dock"), nil)) {
+		NSBundle *bundle = [self bundle];
+		NSString *spacesDisabledTitle = NSLocalizedStringFromTableInBundle(@"Spaces is disabled", nil, bundle, nil);
+		NSString *spacesDisabledMsg = NSLocalizedStringFromTableInBundle(@"Spaces must be enabled for Warp to function. Would you like to go to the Spaces preference pane?", nil, bundle, nil);;
+		
+		NSBeginInformationalAlertSheet(spacesDisabledTitle, @"Yes", @"No", nil,  [[self mainView] window], self, @selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:), nil, nil, spacesDisabledMsg);
+	}
 }
 
 - (void)willUnselect
@@ -179,9 +189,10 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 
 - (void)checkForUpdates:(BOOL)notify
 {
+	
 	NSTimeInterval timeSinceLastUpdate = [[defaults valueForKey:@"LastUpdate"] doubleValue];
 	
-	if (notify || timeSinceLastUpdate == 0 || [[NSDate dateWithTimeIntervalSinceReferenceDate:timeSinceLastUpdate] timeIntervalSinceNow] < -UPDATE_INTERVAL + 3600) {
+	if (notify || ([[defaults valueForKey:@"CheckForUpdates"] boolValue] && (timeSinceLastUpdate == 0 || [[NSDate dateWithTimeIntervalSinceReferenceDate:timeSinceLastUpdate] timeIntervalSinceNow] < -UPDATE_INTERVAL + 3600))) {
 		//Check for network reachability
 		const char *host = "ksuther.com";
 		BOOL reachable;
@@ -206,10 +217,23 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	}
 }
 
+#pragma mark -
+#pragma mark Sheet Callbacks
+#pragma mark -
+
 - (void)updateSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	if (returnCode == NSOKButton) {
 		[[NSWorkspace sharedWorkspace] openURL:UPDATE_SITE];
+	}
+}
+
+- (void)spacesDisabledSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	if (returnCode == NSOKButton) {
+		//Too bad I can't use Scripting Bridge doesn't like being called from within the same application
+		NSAppleScript *script = [[[NSAppleScript alloc] initWithSource:@"tell application \"System Preferences\"\nreveal anchor \"Spaces\" of pane id \"com.apple.preference.expose\"\nend tell"] autorelease];
+		[script performSelector:@selector(executeAndReturnError:) withObject:nil afterDelay:0.0];
 	}
 }
 

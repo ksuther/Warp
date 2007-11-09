@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# DMG creation script for Warp
+#
+
+VERSION="1.0"
+NAME="Warp $VERSION"
+FINAL_NAME="Warp_$VERSION"
+
+rm -f "$NAME.dmg"
+
+hdiutil create "$NAME.dmg" -size 05m -fs HFS+ -volname "$NAME"
+hdiutil attach "$NAME.dmg"
+
+ditto -rsrcFork "/Users/kent/Programming/Build/Release/Warp.prefPane" "/Volumes/$NAME/Warp.prefPane"
+
+hdiutil detach "/Volumes/$NAME"
+hdiutil convert "$NAME.dmg" -format UDZO -o "$NAME.udzo.dmg" -imagekey zlib-level=9
+
+rm -f "$NAME.dmg"
+hdiutil internet-enable -yes "$NAME.udzo.dmg"
+mv "$NAME.udzo.dmg" "$FINAL_NAME.dmg"
