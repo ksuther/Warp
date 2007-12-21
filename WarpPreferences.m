@@ -22,7 +22,7 @@
 #define LAUNCH_AT_LOGIN_TAG 7
 
 #define UPDATE_INTERVAL 864000
-#define UPDATE_SITE [NSURL URLWithString:@"http://www.ksuther.com/warp/update.php"]
+#define UPDATE_SITE [NSURL URLWithString:@"http://www.ksuther.com/warp/update"]
 #define UPDATE_URL_STRING @"http://www.ksuther.com/warp/checkversion.php?v=%@"
 
 NSString *WarpDaemonName = @"WarpDaemon";
@@ -96,7 +96,10 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 		NSString *spacesDisabledTitle = NSLocalizedStringFromTableInBundle(@"Spaces is disabled", nil, bundle, nil);
 		NSString *spacesDisabledMsg = NSLocalizedStringFromTableInBundle(@"Spaces must be enabled for Warp to function. Would you like to go to the Spaces preference pane?", nil, bundle, nil);;
 		
-		NSBeginInformationalAlertSheet(spacesDisabledTitle, @"Yes", @"No", nil,  [[self mainView] window], self, @selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:), nil, nil, spacesDisabledMsg);
+		//NSBeginInformationalAlertSheet(spacesDisabledTitle, @"Yes", @"No", nil,  [[self mainView] window], self, @selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:), nil, nil, spacesDisabledMsg);
+		NSAlert *alert = [NSAlert alertWithMessageText:spacesDisabledTitle defaultButton:@"Yes" alternateButton:@"No" otherButton:nil informativeTextWithFormat:spacesDisabledMsg];
+		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
+		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:self didEndSelector:@selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
 	}
 }
 
@@ -248,7 +251,10 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	NSString *errorMsg = NSLocalizedStringFromTableInBundle(@"Warp was unable to check for updates.\n\n%@", nil, bundle, nil);
 	
 	if (_notifyForUpdates) {
-		NSBeginInformationalAlertSheet(errorTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, errorMsg, [error localizedDescription]);
+		//NSBeginInformationalAlertSheet(errorTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, errorMsg, [error localizedDescription]);
+		NSAlert *alert = [NSAlert alertWithMessageText:errorTitle defaultButton:nil alternateButton:nil otherButton:nil informativeTextWithFormat:errorMsg, [error localizedDescription]];
+		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
+		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:nil didEndSelector:nil contextInfo:nil];
 	}
 	
 	[_updateResponseData setData:[NSData data]];
@@ -276,13 +282,19 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 		NSString *moreInfo = NSLocalizedStringFromTableInBundle(@"Download", nil, bundle, nil);
 		NSString *ignore = NSLocalizedStringFromTableInBundle(@"Ignore", nil, bundle, nil);
 		
-		NSBeginInformationalAlertSheet(updateTitle, moreInfo, ignore, nil,  [[self mainView] window], self, @selector(updateSheetDidEnd:returnCode:contextInfo:), nil, nil, updateMessage, [lines objectAtIndex:1], currentVersionString);
+		//NSBeginInformationalAlertSheet(updateTitle, moreInfo, ignore, nil,  [[self mainView] window], self, @selector(updateSheetDidEnd:returnCode:contextInfo:), nil, nil, updateMessage, [lines objectAtIndex:1], currentVersionString);
+		NSAlert *alert = [NSAlert alertWithMessageText:updateTitle defaultButton:moreInfo alternateButton:ignore otherButton:nil informativeTextWithFormat:updateMessage, [lines objectAtIndex:1], currentVersionString];
+		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
+		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:self didEndSelector:@selector(updateSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
 	} else if (_notifyForUpdates) {
 		NSBundle *bundle = [self bundle];
 		NSString *noupdateTitle = NSLocalizedStringFromTableInBundle(@"No updates found", nil, bundle, nil);
 		NSString *noupdateMessage = NSLocalizedStringFromTableInBundle(@"Warp %@ is the newest version available.", nil, bundle, nil);
 		
-		NSBeginInformationalAlertSheet(noupdateTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, noupdateMessage, currentVersionString);
+		//NSBeginInformationalAlertSheet(noupdateTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, noupdateMessage, currentVersionString);
+		NSAlert *alert = [NSAlert alertWithMessageText:noupdateTitle defaultButton:nil alternateButton:nil otherButton:nil informativeTextWithFormat:noupdateMessage, currentVersionString];
+		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
+		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:nil didEndSelector:nil contextInfo:nil];
 	}
 	
 	[connection release];
