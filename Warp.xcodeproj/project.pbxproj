@@ -22,6 +22,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		371A1E7A0D1B6B2700266F70 /* Warp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 371A1E790D1B6B2700266F70 /* Warp.icns */; };
 		375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
 		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
 		375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */; };
@@ -87,6 +88,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Warp_Prefix.pch; sourceTree = "<group>"; };
+		371A1E790D1B6B2700266F70 /* Warp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Warp.icns; sourceTree = "<group>"; };
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				3790F8C10CDB042200A034FA /* PrefPane-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				375166BE0CE2C6C500B39CD3 /* Localizable.strings */,
+				371A1E790D1B6B2700266F70 /* Warp.icns */,
 				3790F8E70CDB057E00A034FA /* Warp.searchTerms */,
 				3790F9130CDB864E00A034FA /* WarpPreferences.xib */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
@@ -298,6 +301,7 @@
 			files = (
 				3790F9150CDB864E00A034FA /* WarpPreferences.xib in Resources */,
 				375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */,
+				371A1E7A0D1B6B2700266F70 /* Warp.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

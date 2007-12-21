@@ -15,7 +15,7 @@
 {
 	if ([super init]) {
 		if ([[NSUserDefaults standardUserDefaults] persistentDomainForName:WarpBundleIdentifier] == nil) {
-			NSDictionary *defaultSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithDouble:0.25], @"Delay",
+			NSDictionary *defaultSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithDouble:0.75], @"Delay",
 																					[NSNumber numberWithBool:YES], @"WarpMouse",
 																					[NSNumber numberWithBool:YES], @"CheckForUpdates", nil];
 			
