@@ -13,7 +13,7 @@ NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 
 float _activationDelay;
 NSUInteger _activationModifiers;
-BOOL _warpMouse;
+BOOL _warpMouse, _wraparound;
 CGRect _totalScreenRect;
 
 enum {
@@ -108,6 +108,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		
 		switch ([[info objectForKey:@"Direction"] intValue]) {
 			case LeftDirection:
+				if (_wraparound && col == 1) {
+					//Wrap to the rightmost space
+					col = [MainController numberOfSpacesColumns] + 1;
+				}
+				
 				if (mouseLocation.x == _totalScreenRect.origin.x && col > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col - 1];
 					
@@ -116,6 +121,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				}
 				break;
 			case RightDirection:
+				if (_wraparound && col == [MainController numberOfSpacesColumns]) {
+					//Wrap to the leftmost space
+					col = 0;
+				}
+				
 				if (mouseLocation.x == _totalScreenRect.origin.x + _totalScreenRect.size.width - 1 && col < [MainController numberOfSpacesColumns]) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col + 1];
 					
@@ -124,6 +134,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				}
 				break;
 			case DownDirection:
+				if (_wraparound && row == [MainController numberOfSpacesRows]) {
+					//Wrap to the top space
+					row = 0;
+				}
+				
 				if (mouseLocation.y == _totalScreenRect.origin.y + _totalScreenRect.size.height - 1 && row < [MainController numberOfSpacesRows]) {
 					switchedSpace = [MainController switchToSpaceRow:row + 1 column:col];
 					
@@ -132,6 +147,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				}
 				break;
 			case UpDirection:
+				if (_wraparound && row == 1) {
+					//Wrap to the lowest space
+					row = [MainController numberOfSpacesRows] + 1;
+				}
+				
 				if (mouseLocation.y == _totalScreenRect.origin.y && row > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row - 1 column:col];
 					
@@ -220,6 +240,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 	
 	_warpMouse = [df boolForKey:@"WarpMouse"];
+	_wraparound = [df boolForKey:@"Wraparound"];
 }
 
 - (void)screenParametersChanged:(NSNotification *)note
