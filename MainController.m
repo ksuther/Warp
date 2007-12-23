@@ -185,12 +185,14 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 - (void)applicationDidFinishLaunching:(NSNotification *)note
 {
-	EventTypeSpec eventType;
-	eventType.eventClass = kEventClassMouse;
-	eventType.eventKind = kEventMouseMoved;
+	EventTypeSpec eventType[2];
+	eventType[0].eventClass = kEventClassMouse;
+	eventType[0].eventKind = kEventMouseMoved;
+	eventType[1].eventClass = kEventClassMouse;
+	eventType[1].eventKind = kEventMouseDragged;
 
 	EventHandlerUPP handlerFunction = NewEventHandlerUPP(mouseMovedHandler);
-	InstallEventHandler(GetEventMonitorTarget(), handlerFunction, 1, &eventType, nil, &mouseHandler);
+	InstallEventHandler(GetEventMonitorTarget(), handlerFunction, 2, eventType, nil, &mouseHandler);
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(terminate:) name:@"TerminateWarpNotification" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:@"WarpDefaultsChanged" object:nil];
