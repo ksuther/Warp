@@ -9,6 +9,19 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 
+typedef struct {
+	float point;
+	BOOL isLeftOrTop;
+	void *next, *prev;
+} Edge;
+
+enum {
+	LeftDirection = 0,
+	RightDirection,
+	UpDirection,
+	DownDirection
+};
+
 @interface MainController : NSObject {
 	EventHandlerRef mouseHandler;
 }

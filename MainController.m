@@ -11,17 +11,22 @@
 
 NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 
+Edge * edgeForValue(Edge *edge, float value) {
+	while (edge) {
+		if (edge->point == value) {
+			return edge;
+		}
+		edge = edge->next;
+	}
+	
+	return nil;
+}
+
 float _activationDelay;
 NSUInteger _activationModifiers;
 BOOL _warpMouse, _wraparound;
+Edge *_hEdges = nil, *_vEdges = nil;
 CGRect _totalScreenRect;
-
-enum {
-	LeftDirection = 0,
-	RightDirection,
-	UpDirection,
-	DownDirection
-};
 
 OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, void *userData) {
 	HIPoint mouseLocation;
@@ -29,14 +34,12 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	
 	HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
 	
-	if (mouseLocation.x == _totalScreenRect.origin.x) {
-		direction = LeftDirection;
-	} else if (mouseLocation.x == _totalScreenRect.origin.x + _totalScreenRect.size.width - 1) {
-		direction = RightDirection;
-	} else if (mouseLocation.y == _totalScreenRect.origin.y + _totalScreenRect.size.height - 1) {
-		direction = DownDirection;
-	} else if (mouseLocation.y == _totalScreenRect.origin.y) {
-		direction = UpDirection;
+	Edge *edge;
+	
+	if ( (edge = edgeForValue(_hEdges, mouseLocation.x)) ) {
+		direction = edge->isLeftOrTop ? LeftDirection : RightDirection;
+	} else if ( (edge = edgeForValue(_vEdges, mouseLocation.y)) ) {
+		direction = edge->isLeftOrTop ? UpDirection : DownDirection;
 	}
 	
 	if (direction != -1) {
@@ -101,6 +104,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		CGPoint warpLocation;
 		int row, col;
 		BOOL switchedSpace = NO;
+		Edge *edge = nil;
 		
 		HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
 		
@@ -113,10 +117,10 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					col = [MainController numberOfSpacesColumns] + 1;
 				}
 				
-				if (mouseLocation.x == _totalScreenRect.origin.x && col > 1) {
+				if ((edge = edgeForValue(_hEdges, mouseLocation.x)) && edge->isLeftOrTop && col > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col - 1];
 					
-					warpLocation.x = _totalScreenRect.size.width - 20;
+					warpLocation.x = _totalScreenRect.origin.x + _totalScreenRect.size.width - 20;
 					warpLocation.y = mouseLocation.y;
 				}
 				break;
@@ -126,7 +130,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					col = 0;
 				}
 				
-				if (mouseLocation.x == _totalScreenRect.origin.x + _totalScreenRect.size.width - 1 && col < [MainController numberOfSpacesColumns]) {
+				if ((edge = edgeForValue(_hEdges, mouseLocation.x)) && !edge->isLeftOrTop && col < [MainController numberOfSpacesColumns]) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col + 1];
 					
 					warpLocation.x = _totalScreenRect.origin.x + 20;
@@ -139,7 +143,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					row = 0;
 				}
 				
-				if (mouseLocation.y == _totalScreenRect.origin.y + _totalScreenRect.size.height - 1 && row < [MainController numberOfSpacesRows]) {
+				if ((edge = edgeForValue(_vEdges, mouseLocation.y)) && !edge->isLeftOrTop && row < [MainController numberOfSpacesRows]) {
 					switchedSpace = [MainController switchToSpaceRow:row + 1 column:col];
 					
 					warpLocation.x = mouseLocation.x;
@@ -152,7 +156,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					row = [MainController numberOfSpacesRows] + 1;
 				}
 				
-				if (mouseLocation.y == _totalScreenRect.origin.y && row > 1) {
+				if ((edge = edgeForValue(_vEdges, mouseLocation.y)) && edge->isLeftOrTop && row > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row - 1 column:col];
 					
 					warpLocation.x = mouseLocation.x;
@@ -162,6 +166,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		}
 		
 		if (switchedSpace && _warpMouse) {
+			NSLog(@"warp to: %@", NSStringFromPoint(*(NSPoint *)&warpLocation));
 			CGWarpMouseCursorPosition(warpLocation);
 		}
 	}
@@ -252,24 +257,150 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	CGGetActiveDisplayList(0, NULL, &count);
 	displays = calloc(1, count * sizeof(displays[0]));
 	
-	if (!displays || !count) {
-		_totalScreenRect = CGRectNull;
-	} else {
+	Edge *edge = _hEdges, *prev;
+	
+	//Free horizontal edges
+	while (edge) {
+		prev = edge;
+		edge = edge->next;
+		free(prev);
+	}
+	
+	//Free vertical edges
+	edge = _vEdges;
+	
+	while (edge) {
+		prev = edge;
+		edge = edge->next;
+		free(prev);
+	}
+	
+	_totalScreenRect = CGRectNull;
+	_hEdges = nil;
+	_vEdges = nil;
+	
+	if (displays && count > 0) {
 		CGGetActiveDisplayList(count, displays, &count);
 		CGRect bounds;
 		
 		for (NSUInteger i = 0; i < count; i++) {
-			if (i == 0) {
-				bounds = CGDisplayBounds(displays[i]);
+			bounds = CGDisplayBounds(displays[i]);
+			
+			if ( (edge = edgeForValue(_hEdges, bounds.origin.x - 1)) || (edge = edgeForValue(_hEdges, bounds.origin.x + 1)) ) {
+				if (edge->prev) {
+					edge->prev = edge->next;
+				} else {
+					_hEdges = edge->next;
+				}
+				
+				free(edge);
 			} else {
-				bounds = CGRectUnion(bounds, CGDisplayBounds(displays[i]));
+				edge = malloc(sizeof(Edge));
+				edge->point = bounds.origin.x;
+				edge->isLeftOrTop = YES;
+				edge->next = _hEdges;
+				edge->prev = nil;
+				
+				if (_hEdges) {
+					_hEdges->prev = edge;
+				}
+				
+				_hEdges = edge;
 			}
+			
+			if ( (edge = edgeForValue(_hEdges, bounds.origin.x + bounds.size.width - 1)) || (edge = edgeForValue(_hEdges, bounds.origin.x + bounds.size.width + 1)) ) {
+				if (edge->prev) {
+					edge->prev = edge->next;
+				} else {
+					_hEdges = edge->next;
+				}
+				
+				free(edge);
+			} else {
+				edge = malloc(sizeof(Edge));
+				edge->point = bounds.origin.x + bounds.size.width - 1;
+				
+				if (edge->point < 0) {
+					edge->point = 0;
+				}
+				
+				edge->isLeftOrTop = NO;
+				edge->next = _hEdges;
+				edge->prev = nil;
+				
+				if (_hEdges) {
+					_hEdges->prev = edge;
+				}
+				
+				_hEdges = edge;
+			}
+			
+			if ( (edge = edgeForValue(_vEdges, bounds.origin.y - 1)) || (edge = edgeForValue(_vEdges, bounds.origin.y + 1)) ) {
+				if (edge->prev) {
+					edge->prev = edge->next;
+				} else {
+					_vEdges = edge->next;
+				}
+				
+				free(edge);
+			} else {
+				edge = malloc(sizeof(Edge));
+				edge->point = bounds.origin.y;
+				edge->isLeftOrTop = YES;
+				edge->next = _vEdges;
+				edge->prev = nil;
+				
+				if (_vEdges) {
+					_vEdges->prev = edge;
+				}
+				
+				_vEdges = edge;
+			}
+			
+			if ( (edge = edgeForValue(_vEdges, bounds.origin.y + bounds.size.height - 1)) || (edge = edgeForValue(_vEdges, bounds.origin.y + bounds.size.height + 1)) ) {
+				if (edge->prev) {
+					edge->prev = edge->next;
+				} else {
+					_vEdges = edge->next;
+				}
+				
+				free(edge);
+			} else {
+				edge = malloc(sizeof(Edge));
+				edge->point = bounds.origin.y + bounds.size.height - 1;
+				
+				if (edge->point < 0) {
+					edge->point = 0;
+				}
+				
+				edge->isLeftOrTop = NO;
+				edge->next = _vEdges;
+				edge->prev = nil;
+				
+				if (_vEdges) {
+					_vEdges->prev = edge;
+				}
+				
+				_vEdges = edge;
+			}
+			
+			_totalScreenRect = CGRectUnion(_totalScreenRect, bounds);
 		}
-		
-		free(displays);
-		
-		_totalScreenRect = bounds;
 	}
+	
+	//Log found edges
+	edge = _hEdges;
+	while (edge != nil) {
+		NSLog(@"horizontal edge: %f isLeftOrTop: %d", edge->point, edge->isLeftOrTop);
+		edge = edge->next;
+	}
+	edge = _vEdges;
+	while (edge != nil) {
+		NSLog(@"vertical edge: %f isLeftOrTop: %d", edge->point, edge->isLeftOrTop);
+		edge = edge->next;
+	}
+	
+	free(displays);
 }
 
 @end
