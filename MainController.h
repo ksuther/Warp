@@ -3,16 +3,18 @@
 //  Edger
 //
 //  Created by Kent Sutherland on 11/1/07.
-//  Copyright 2007 Kent Sutherland. All rights reserved.
+//  Copyright 2007-2008 Kent Sutherland. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
+#import "WarpRange.h"
 
 typedef struct {
 	float point;
+	WarpRange range;
 	BOOL isLeftOrTop;
-	void *next, *prev;
+	void *next;
 } Edge;
 
 enum {
