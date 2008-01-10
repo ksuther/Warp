@@ -366,14 +366,14 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		CGRect bounds;
 		CGFloat point;
 		
-		CGRect testDisplays[2];
+		/*CGRect testDisplays[2];
 		testDisplays[0] = CGRectMake(0, 0, 1600, 1200);
 		testDisplays[1] = CGRectMake(1200, -768, 1024, 768);
-		count = 2;
+		count = 2;*/
 		
 		for (NSUInteger i = 0; i < count; i++) {
-			bounds = testDisplays[i];
-			//bounds = CGDisplayBounds(displays[i]);
+			//bounds = testDisplays[i];
+			bounds = CGDisplayBounds(displays[i]);
 			//NSLog(@"bounds: %@", NSStringFromRect(*(NSRect *)&bounds));
 			
 			//Left edge
