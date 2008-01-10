@@ -55,6 +55,9 @@ Edge * removeEdge(Edge *edgeList, Edge *edge) {
 }
 
 Edge * addEdge(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, WarpRange range) {
+	range.location += 40;
+	range.length -= 80;
+	
 	Edge *edge = malloc(sizeof(Edge));
 	edge->point = point;
 	edge->isLeftOrTop = isLeftOrTop;
@@ -366,15 +369,20 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		CGRect bounds;
 		CGFloat point;
 		
-		/*CGRect testDisplays[2];
-		testDisplays[0] = CGRectMake(0, 0, 1600, 1200);
-		testDisplays[1] = CGRectMake(1200, -768, 1024, 768);
-		count = 2;*/
+		#ifdef TEST_BOUNDS
+			CGRect testDisplays[2];
+			testDisplays[0] = CGRectMake(0, 0, 1600, 1200);
+			testDisplays[1] = CGRectMake(1200, -768, 1024, 768);
+			count = 2;
+		#endif
 		
 		for (NSUInteger i = 0; i < count; i++) {
-			//bounds = testDisplays[i];
-			bounds = CGDisplayBounds(displays[i]);
-			//NSLog(@"bounds: %@", NSStringFromRect(*(NSRect *)&bounds));
+			#ifdef TEST_BOUNDS
+				bounds = testDisplays[i];
+				NSLog(@"bounds: %@", NSStringFromRect(*(NSRect *)&bounds));
+			#else
+				bounds = CGDisplayBounds(displays[i]);
+			#endif
 			
 			//Left edge
 			if ( (edge = edgeForValue(_hEdges, bounds.origin.x)) || (edge = edgeForValue(_hEdges, bounds.origin.x - 1)) || (edge = edgeForValue(_hEdges, bounds.origin.x + 1)) ) {
@@ -459,6 +467,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 	
 	//Log found edges
+	//#ifdef TEST_BOUNDS
 	edge = _hEdges;
 	while (edge != nil) {
 		NSLog(@"horizontal edge: %f isLeftOrTop: %d {%f %f}", edge->point, edge->isLeftOrTop, edge->range.location, edge->range.length);
@@ -469,6 +478,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		NSLog(@"vertical edge: %f isLeftOrTop: %d {%f %f}", edge->point, edge->isLeftOrTop, edge->range.location, edge->range.length);
 		edge = edge->next;
 	}
+	//#endif
 	
 	free(displays);
 }

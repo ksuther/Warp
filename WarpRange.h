@@ -23,7 +23,8 @@ NS_INLINE CGFloat WarpMaxRange(WarpRange range) {
 }
 
 NS_INLINE BOOL WarpLocationInRange(CGFloat loc, WarpRange range) {
-    return (loc - range.location < range.length);
+	return (loc > range.location && loc < range.location + range.length);
+    //return (loc - range.location < range.length);
 }
 
 NS_INLINE BOOL WarpEqualRanges(WarpRange range1, WarpRange range2) {
