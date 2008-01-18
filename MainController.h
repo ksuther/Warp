@@ -14,6 +14,7 @@ typedef struct {
 	float point;
 	WarpRange range;
 	BOOL isLeftOrTop;
+	BOOL isDockOrMenubar;
 	void *next;
 } Edge;
 
@@ -32,5 +33,7 @@ enum {
 + (NSInteger)numberOfSpacesColumns;
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column;
 + (BOOL)switchToSpaceRow:(NSInteger)row column:(NSInteger)column;
+
+- (void)updateWarpRects;
 
 @end

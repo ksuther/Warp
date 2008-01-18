@@ -94,10 +94,10 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	if (!CFPreferencesGetAppBooleanValue(CFSTR("workspaces"), CFSTR("com.apple.dock"), nil)) {
 		NSBundle *bundle = [self bundle];
 		NSString *spacesDisabledTitle = NSLocalizedStringFromTableInBundle(@"Spaces is disabled", nil, bundle, nil);
-		NSString *spacesDisabledMsg = NSLocalizedStringFromTableInBundle(@"Spaces must be enabled for Warp to function. Would you like to go to the Spaces preference pane?", nil, bundle, nil);;
+		NSString *spacesDisabledMsg = NSLocalizedStringFromTableInBundle(@"Spaces must be enabled for Warp to function. Would you like to go to the Spaces preference pane?", nil, bundle, nil);
 		
 		//NSBeginInformationalAlertSheet(spacesDisabledTitle, @"Yes", @"No", nil,  [[self mainView] window], self, @selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:), nil, nil, spacesDisabledMsg);
-		NSAlert *alert = [NSAlert alertWithMessageText:spacesDisabledTitle defaultButton:@"Yes" alternateButton:@"No" otherButton:nil informativeTextWithFormat:spacesDisabledMsg];
+		NSAlert *alert = [NSAlert alertWithMessageText:spacesDisabledTitle defaultButton:NSLocalizedStringFromTableInBundle(@"Yes", nil, bundle, nil) alternateButton:NSLocalizedStringFromTableInBundle(@"No", nil, bundle, nil) otherButton:nil informativeTextWithFormat:spacesDisabledMsg];
 		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
 		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:self didEndSelector:@selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
 	}
@@ -106,6 +106,11 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 - (void)willUnselect
 {
 	[[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self name:nil object:nil];
+}
+
+- (NSString *)versionString
+{
+	return [NSString stringWithFormat:@"%@ -", [[self bundle] objectForInfoDictionaryKey:@"CFBundleVersion"]];
 }
 
 - (void)workspaceNotificationReceived:(NSNotification *)note

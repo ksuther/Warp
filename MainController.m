@@ -54,13 +54,14 @@ Edge * removeEdge(Edge *edgeList, Edge *edge) {
 	return edgeList;
 }
 
-Edge * addEdge(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, WarpRange range) {
+Edge * addEdge(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, BOOL isDockOrMenubar, WarpRange range) {
 	range.location += 40;
 	range.length -= 80;
 	
 	Edge *edge = malloc(sizeof(Edge));
 	edge->point = point;
 	edge->isLeftOrTop = isLeftOrTop;
+	edge->isDockOrMenubar = isDockOrMenubar;
 	edge->next = nil;
 	edge->range = range;
 	
@@ -77,7 +78,7 @@ Edge * addEdge(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, WarpRange range)
 	return edgeList;
 }
 
-Edge * addEdgeWithoutOverlap(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, WarpRange range, Edge *existingEdge) {
+Edge * addEdgeWithoutOverlap(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, BOOL isDockOrMenubar, WarpRange range, Edge *existingEdge) {
 	//
 	//Add edges to cover the non-overlapping sections
 	//5 cases: range < existingRange, range > existingRange, range < and > existingRange, range == existingRange, range not in existingRange
@@ -99,7 +100,7 @@ Edge * addEdgeWithoutOverlap(Edge *edgeList, CGFloat point, BOOL isLeftOrTop, Wa
 		existingRange->length -= delta;
 	}
 	
-	return addEdge(edgeList, point, isLeftOrTop, range);
+	return addEdge(edgeList, point, isLeftOrTop, isDockOrMenubar, range);
 }
 
 OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, void *userData) {
@@ -150,6 +151,23 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	return columnCount;
 }
 
++ (int)dockSide
+{
+	CFPreferencesAppSynchronize(CFSTR("com.apple.dock"));
+	
+	NSString *orientation = [(id)CFPreferencesCopyAppValue(CFSTR("orientation"), CFSTR("com.apple.dock")) autorelease];
+	
+	if ([orientation isEqualToString:@"left"]) {
+		return LeftDirection; 
+	} else if ([orientation isEqualToString:@"right"]) {
+		return RightDirection;
+	} else if ([orientation isEqualToString:@"top"]) {
+		return UpDirection;
+	} else {
+		return DownDirection;
+	} 
+}
+
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column
 {
 	NSInteger currentSpace = 0;
@@ -178,6 +196,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		int row, col;
 		BOOL switchedSpace = NO;
 		Edge *edge = nil;
+		NSUserDefaults *df = [NSUserDefaults standardUserDefaults];
 		
 		HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
 		
@@ -190,7 +209,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					col = [MainController numberOfSpacesColumns] + 1;
 				}
 				
-				if ((edge = edgeForValueInRange(_hEdges, mouseLocation.x, mouseLocation.y)) && edge->isLeftOrTop && col > 1) {
+				if ((edge = edgeForValueInRange(_hEdges, mouseLocation.x, mouseLocation.y)) && edge->isLeftOrTop && !([df boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar) && col > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col - 1];
 					
 					warpLocation.x = _totalScreenRect.origin.x + _totalScreenRect.size.width - 20;
@@ -204,7 +223,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					col = 0;
 				}
 				
-				if ((edge = edgeForValueInRange(_hEdges, mouseLocation.x, mouseLocation.y)) && !edge->isLeftOrTop && col < [MainController numberOfSpacesColumns]) {
+				if ((edge = edgeForValueInRange(_hEdges, mouseLocation.x, mouseLocation.y)) && !edge->isLeftOrTop && !([df boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar) && col < [MainController numberOfSpacesColumns]) {
 					switchedSpace = [MainController switchToSpaceRow:row column:col + 1];
 					
 					warpLocation.x = _totalScreenRect.origin.x + 20;
@@ -218,7 +237,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					row = 0;
 				}
 				
-				if ((edge = edgeForValueInRange(_vEdges, mouseLocation.y, mouseLocation.x)) && !edge->isLeftOrTop && row < [MainController numberOfSpacesRows]) {
+				if ((edge = edgeForValueInRange(_vEdges, mouseLocation.y, mouseLocation.x)) && !edge->isLeftOrTop && !([df boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar) && row < [MainController numberOfSpacesRows]) {
 					switchedSpace = [MainController switchToSpaceRow:row + 1 column:col];
 					
 					warpLocation.x = mouseLocation.x;
@@ -232,7 +251,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					row = [MainController numberOfSpacesRows] + 1;
 				}
 				
-				if ((edge = edgeForValueInRange(_vEdges, mouseLocation.y, mouseLocation.x)) && edge->isLeftOrTop && row > 1) {
+				if ((edge = edgeForValueInRange(_vEdges, mouseLocation.y, mouseLocation.x)) && edge->isLeftOrTop && !([df boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar) && row > 1) {
 					switchedSpace = [MainController switchToSpaceRow:row - 1 column:col];
 					
 					warpLocation.x = mouseLocation.x;
@@ -280,7 +299,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(screenParametersChanged:) name:NSApplicationDidChangeScreenParametersNotification object:nil];
 	
 	[self performSelector:@selector(defaultsChanged:)];
-	[self performSelector:@selector(screenParametersChanged:)];
+	[self updateWarpRects];
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(timeMachineNotification:) name:@"com.apple.backup.BackupTargetActivatedNotification" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(timeMachineNotification:) name:@"com.apple.backup.BackupDismissedNotification" object:nil];
@@ -337,6 +356,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 - (void)screenParametersChanged:(NSNotification *)note
 {
+	[self performSelector:@selector(updateWarpRects) withObject:nil afterDelay:1.0];
+}
+
+- (void)updateWarpRects
+{
 	CGDisplayCount count;
 	CGDirectDisplayID *displays;
 	CGGetActiveDisplayList(0, NULL, &count);
@@ -368,6 +392,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		CGGetActiveDisplayList(count, displays, &count);
 		CGRect bounds;
 		CGFloat point;
+		NSArray *screens = [NSScreen screens];
 		
 		#ifdef TEST_BOUNDS
 			CGRect testDisplays[2];
@@ -384,6 +409,29 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				bounds = CGDisplayBounds(displays[i]);
 			#endif
 			
+			int dockScreenSide = -1; //Set to true if the dock is on this screen
+			
+			for (NSScreen *screen in screens) {
+				if ((CGDirectDisplayID)[[[screen deviceDescription] objectForKey:@"NSScreenNumber"] longValue] == displays[i]) {
+					int dockOrientation = [MainController dockSide];
+					
+					if (dockOrientation == DownDirection || dockOrientation == UpDirection) {
+						float menubarHeight = 0;
+						
+						if ([NSMenu menuBarVisible]) {
+							menubarHeight = [[NSApp mainMenu] menuBarHeight];
+						}
+						
+						float heightWithoutMenBar = [screen frame].size.height - menubarHeight;
+						if ([screen visibleFrame].size.height < heightWithoutMenBar) {
+							dockScreenSide = dockOrientation;
+						}
+					} else if ([screen visibleFrame].size.width < [screen frame].size.width) {
+						dockScreenSide = dockOrientation;
+					}
+				}
+			}
+			
 			//Left edge
 			if ( (edge = edgeForValue(_hEdges, bounds.origin.x)) || (edge = edgeForValue(_hEdges, bounds.origin.x - 1)) || (edge = edgeForValue(_hEdges, bounds.origin.x + 1)) ) {
 				if (edge->isLeftOrTop) {
@@ -396,11 +444,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					if (edge->range.location == bounds.origin.y && edge->range.length == bounds.size.height) {
 						_hEdges = removeEdge(_hEdges, edge);
 					} else {
-						_hEdges = addEdgeWithoutOverlap(_hEdges, bounds.origin.x, YES, WarpMakeRange(bounds.origin.y, bounds.size.height), edge);
+						_hEdges = addEdgeWithoutOverlap(_hEdges, bounds.origin.x, YES, NO, WarpMakeRange(bounds.origin.y, bounds.size.height), edge);
 					}
 				}
 			} else {
-				_hEdges = addEdge(_hEdges, bounds.origin.x, YES, WarpMakeRange(bounds.origin.y, bounds.size.height));
+				_hEdges = addEdge(_hEdges, bounds.origin.x, YES, (dockScreenSide == LeftDirection), WarpMakeRange(bounds.origin.y, bounds.size.height));
 			}
 			
 			//Right edge
@@ -416,11 +464,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					if (edge->range.location == bounds.origin.y && edge->range.length == bounds.size.height) {
 						_hEdges = removeEdge(_hEdges, edge);
 					} else {
-						_hEdges = addEdgeWithoutOverlap(_hEdges, point, NO, WarpMakeRange(bounds.origin.y, bounds.size.height), edge);
+						_hEdges = addEdgeWithoutOverlap(_hEdges, point, NO, NO, WarpMakeRange(bounds.origin.y, bounds.size.height), edge);
 					}
 				}
 			} else {
-				_hEdges = addEdge(_hEdges, point, NO, WarpMakeRange(bounds.origin.y, bounds.size.height));
+				_hEdges = addEdge(_hEdges, point, NO, (dockScreenSide == RightDirection), WarpMakeRange(bounds.origin.y, bounds.size.height));
 			}
 			
 			//Top edge
@@ -435,11 +483,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					if (edge->range.location == bounds.origin.x && edge->range.length == bounds.size.width) {
 						_vEdges = removeEdge(_vEdges, edge);
 					} else {
-						_vEdges = addEdgeWithoutOverlap(_vEdges, bounds.origin.y, YES, WarpMakeRange(bounds.origin.x, bounds.size.width), edge);
+						_vEdges = addEdgeWithoutOverlap(_vEdges, bounds.origin.y, YES, NO, WarpMakeRange(bounds.origin.x, bounds.size.width), edge);
 					}
 				}
 			} else {
-				_vEdges = addEdge(_vEdges, bounds.origin.y, YES, WarpMakeRange(bounds.origin.x, bounds.size.width));
+				_vEdges = addEdge(_vEdges, bounds.origin.y, YES, (i == 0 || dockScreenSide == UpDirection), WarpMakeRange(bounds.origin.x, bounds.size.width));
 			}
 			
 			//Bottom edge
@@ -455,11 +503,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					if (edge->range.location == bounds.origin.x && edge->range.length == bounds.size.width) {
 						_vEdges = removeEdge(_vEdges, edge);
 					} else {
-						_vEdges = addEdgeWithoutOverlap(_vEdges, point, NO, WarpMakeRange(bounds.origin.x, bounds.size.width), edge);
+						_vEdges = addEdgeWithoutOverlap(_vEdges, point, NO, (dockScreenSide == DownDirection), WarpMakeRange(bounds.origin.x, bounds.size.width), edge);
 					}
 				}
 			} else {
-				_vEdges = addEdge(_vEdges, point, NO, WarpMakeRange(bounds.origin.x, bounds.size.width));
+				_vEdges = addEdge(_vEdges, point, NO, (dockScreenSide == DownDirection), WarpMakeRange(bounds.origin.x, bounds.size.width));
 			}
 			
 			_totalScreenRect = CGRectUnion(_totalScreenRect, bounds);
@@ -467,7 +515,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 	
 	//Log found edges
-	//#ifdef TEST_BOUNDS
+	#ifdef TEST_BOUNDS
 	edge = _hEdges;
 	while (edge != nil) {
 		NSLog(@"horizontal edge: %f isLeftOrTop: %d {%f %f}", edge->point, edge->isLeftOrTop, edge->range.location, edge->range.length);
@@ -478,7 +526,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		NSLog(@"vertical edge: %f isLeftOrTop: %d {%f %f}", edge->point, edge->isLeftOrTop, edge->range.location, edge->range.length);
 		edge = edge->next;
 	}
-	//#endif
+	#endif
 	
 	free(displays);
 }
