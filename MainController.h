@@ -11,10 +11,11 @@
 #import "WarpRange.h"
 
 typedef struct {
-	float point;
+	CGFloat point;
 	WarpRange range;
 	BOOL isLeftOrTop;
 	BOOL isDockOrMenubar;
+	NSScreen *screen;
 	void *next;
 } Edge;
 
@@ -25,6 +26,8 @@ enum {
 	DownDirection
 };
 
+@class WarpEdgeWindow;
+
 @interface MainController : NSObject {
 	EventHandlerRef mouseHandler;
 }
@@ -32,6 +35,7 @@ enum {
 + (NSInteger)numberOfSpacesRows;
 + (NSInteger)numberOfSpacesColumns;
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column;
++ (void)warpInDirection:(NSUInteger)direction;
 + (BOOL)switchToSpaceRow:(NSInteger)row column:(NSInteger)column;
 
 - (void)updateWarpRects;

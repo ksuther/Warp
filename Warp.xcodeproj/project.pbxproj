@@ -23,6 +23,10 @@
 
 /* Begin PBXBuildFile section */
 		371A1E7A0D1B6B2700266F70 /* Warp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 371A1E790D1B6B2700266F70 /* Warp.icns */; };
+		374345FC0D63A83900189144 /* WarpEdgeWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 374345FB0D63A83900189144 /* WarpEdgeWindow.m */; };
+		3743464A0D63ADCC00189144 /* WarpEdgeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 374346490D63ADCC00189144 /* WarpEdgeView.m */; };
+		374347280D63CC7000189144 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 374347270D63CC7000189144 /* QuartzCore.framework */; };
+		37434A610D64BEF600189144 /* ScreenSaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37434A600D64BEF600189144 /* ScreenSaver.framework */; };
 		375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
 		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
 		375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */; };
@@ -93,6 +97,13 @@
 		371C7FA50D4092FC0013C101 /* French */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = French; path = French.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		371C7FAF0D4116030013C101 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
 		371C7FB30D4116A10013C101 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Italian; path = Italian.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
+		374345FA0D63A83900189144 /* WarpEdgeWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpEdgeWindow.h; sourceTree = "<group>"; };
+		374345FB0D63A83900189144 /* WarpEdgeWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpEdgeWindow.m; sourceTree = "<group>"; };
+		374346480D63ADCC00189144 /* WarpEdgeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpEdgeView.h; sourceTree = "<group>"; };
+		374346490D63ADCC00189144 /* WarpEdgeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpEdgeView.m; sourceTree = "<group>"; };
+		374347270D63CC7000189144 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		37434A5F0D64BEEA00189144 /* ScreenSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaver.h; sourceTree = "<group>"; };
+		37434A600D64BEF600189144 /* ScreenSaver.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScreenSaver.framework; path = /System/Library/Frameworks/ScreenSaver.framework; sourceTree = "<absolute>"; };
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
@@ -134,6 +145,8 @@
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */,
 				3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */,
+				374347280D63CC7000189144 /* QuartzCore.framework in Frameworks */,
+				37434A610D64BEF600189144 /* ScreenSaver.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +158,10 @@
 			children = (
 				3790F6370CDA71C400A034FA /* MainController.h */,
 				3790F6380CDA71C400A034FA /* MainController.m */,
+				374345FA0D63A83900189144 /* WarpEdgeWindow.h */,
+				374345FB0D63A83900189144 /* WarpEdgeWindow.m */,
+				374346480D63ADCC00189144 /* WarpEdgeView.h */,
+				374346490D63ADCC00189144 /* WarpEdgeView.m */,
 				3790F8F20CDB05B200A034FA /* Preference Pane */,
 			);
 			name = Classes;
@@ -156,7 +173,9 @@
 				3790F76A0CDA804300A034FA /* ApplicationServices.framework */,
 				3790F65A0CDA73C400A034FA /* Carbon.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+				374347270D63CC7000189144 /* QuartzCore.framework */,
 				3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */,
+				37434A600D64BEF600189144 /* ScreenSaver.framework */,
 				3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */,
 				375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */,
 			);
@@ -198,6 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				3790F7660CDA7FFF00A034FA /* CoreGraphicsPrivate.h */,
+				37434A5F0D64BEEA00189144 /* ScreenSaver.h */,
 				37B04B130D2AE86700380FB3 /* WarpRange.h */,
 				32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
@@ -345,6 +365,8 @@
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				3790F6390CDA71C400A034FA /* MainController.m in Sources */,
+				374345FC0D63A83900189144 /* WarpEdgeWindow.m in Sources */,
+				3743464A0D63ADCC00189144 /* WarpEdgeView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
