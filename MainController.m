@@ -229,14 +229,8 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 }
 
-+ (NSPoint)getSpaceInDirection:(NSUInteger)direction
++ (NSPoint)getSpaceInDirection:(NSUInteger)direction row:(NSInteger)row column:(NSInteger)col
 {
-	NSInteger row, col;
-	
-	if ([MainController getCurrentSpaceRow:&row column:&col] == -1) {
-		return NSMakePoint(-1, -1);
-	}
-	
 	switch (direction) {
 		case LeftDirection:
 			if (_wraparound && col == 1) {
@@ -273,6 +267,18 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 	
 	return NSMakePoint(col, row);
+}
+
++ (NSPoint)getSpaceInDirection:(NSUInteger)direction
+{
+	
+	NSInteger row, col;
+	
+	if ([MainController getCurrentSpaceRow:&row column:&col] == -1) {
+		return NSMakePoint(-1, -1);
+	}
+	
+	return [self getSpaceInDirection:direction row:row column:col];
 }
 
 + (NSInteger)spacesIndexForRow:(NSInteger)row column:(NSInteger)column
@@ -321,7 +327,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		
 		HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
 		
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"] && _edgeWindow) {
+		if ([df boolForKey:@"ClickToWarp"] && _edgeWindow) {
 			if (direction == LeftDirection || direction == RightDirection) {
 				mouseLocation.x = [_edgeWindow edge]->point;
 			} else {
@@ -376,10 +382,19 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					mouseLocation.y += 3;
 					break;
 			}
-		}
-		
-		if (switchedSpace) {
+			
 			CGWarpMouseCursorPosition(_warpMouse ? warpLocation : mouseLocation);
+			
+			if ([df boolForKey:@"ClickToWarp"]) {
+				//Determine if the click-to-warp floating window should be hidden
+				NSPoint nextSpace = [self getSpaceInDirection:direction row:row column:col];
+				
+				if ([self spacesIndexForRow:nextSpace.y column:nextSpace.x] == -1) {
+					[_edgeWindow orderOut:nil];
+					[_edgeWindow release];
+					_edgeWindow = nil;
+				}
+			}
 		}
 	}
 }
