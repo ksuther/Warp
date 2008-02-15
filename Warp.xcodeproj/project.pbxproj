@@ -104,6 +104,10 @@
 		374347270D63CC7000189144 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		37434A5F0D64BEEA00189144 /* ScreenSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaver.h; sourceTree = "<group>"; };
 		37434A600D64BEF600189144 /* ScreenSaver.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScreenSaver.framework; path = /System/Library/Frameworks/ScreenSaver.framework; sourceTree = "<absolute>"; };
+		37434ACE0D653FA200189144 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37434AD30D6540DA00189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37434AD60D6541E900189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
+		37434AD70D6541EE00189144 /* German */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = German; path = German.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
@@ -413,6 +417,8 @@
 				375166BF0CE2C6C500B39CD3 /* English */,
 				371C7F900D4092C30013C101 /* French */,
 				371C7FAF0D4116030013C101 /* Italian */,
+				37434ACE0D653FA200189144 /* German */,
+				37434AD30D6540DA00189144 /* Japanese */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -423,6 +429,8 @@
 				3790F9140CDB864E00A034FA /* English */,
 				371C7FA50D4092FC0013C101 /* French */,
 				371C7FB30D4116A10013C101 /* Italian */,
+				37434AD60D6541E900189144 /* Japanese */,
+				37434AD70D6541EE00189144 /* German */,
 			);
 			name = WarpPreferences.xib;
 			sourceTree = "<group>";
