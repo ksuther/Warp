@@ -308,9 +308,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				[_edgeWindow release];
 				
 				_edgeWindow = [[WarpEdgeWindow windowWithEdge:edge workspace:spacesIndex direction:direction] retain];
-				[_edgeWindow setAlphaValue:0.0f];
 				[_edgeWindow orderFront:nil];
-				[[_edgeWindow animator] setAlphaValue:1.0f];
 			}
 		} else {
 			[MainController warpInDirection:direction];

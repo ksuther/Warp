@@ -53,18 +53,31 @@
 	[[NSColor colorWithCalibratedWhite:0.0f alpha:0.7f] set];
 	[NSBezierPath fillRect:rect];
 	
-	NSPoint drawPoint;
-	drawPoint = NSMakePoint(5.0f, 0.0f);
-	
-	if (_direction == LeftDirection) {
-		drawPoint.x = 15.0f;
-	} else if (_direction == RightDirection) {
-		drawPoint.x = 5.0f;
-	} else if (_direction == DownDirection) {
-		drawPoint.y = 15.0f;
+	if (_image) {
+		NSPoint drawPoint;
+		drawPoint = NSMakePoint(5.0f, 3.0f);
+		
+		if (_direction == LeftDirection) {
+			drawPoint.x = 15.0f;
+			drawPoint.y += 1.0f;
+		} else if (_direction == RightDirection) {
+			drawPoint.x = 5.0f;
+			drawPoint.y += 1.0f;
+		} else if (_direction == DownDirection) {
+			drawPoint.y += 15.0f;
+		}
+		
+		[_image compositeToPoint:drawPoint operation:NSCompositeSourceOver];
+	} else {
+		//No windows on the space, draw no windows text.
+		NSString *noWindowsString = NSLocalizedString(@"No windows", nil);
+		NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSColor colorWithCalibratedWhite:0.9f alpha:1.0f], NSForegroundColorAttributeName,
+																			[NSFont labelFontOfSize:18.0f], NSFontAttributeName, nil];
+		NSRect frame = [self frame];
+		
+		NSSize size = [noWindowsString sizeWithAttributes:attributes];
+		[noWindowsString drawAtPoint:NSMakePoint((frame.size.width - size.width) / 2, (frame.size.height - size.height) / 2) withAttributes:attributes];
 	}
-	
-	[_image compositeToPoint:drawPoint operation:NSCompositeSourceOver];
 }
 
 - (BOOL)acceptsFirstResponder
@@ -138,6 +151,11 @@
 	NSInteger *list = malloc(sizeof(NSInteger) * count);
 	CGSGetWorkspaceWindowList(_CGSDefaultConnection(), workspace + 1, count, list, &outCount);
 	
+	if (outCount == 0) {
+		_image = nil;
+		return;
+	}
+	
 	NSSize screenSize = [[NSScreen mainScreen] frame].size;
 	NSSize size = [self frame].size;
 	
@@ -159,8 +177,7 @@
 	
 	CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
 	
-	NSInteger i;
-	for (i = outCount - 1; i >= 0; i--) {
+	for (NSInteger i = outCount - 1; i >= 0; i--) {
 		NSInteger cid = (NSInteger)[NSApp contextID];
 		
 		CGRect cgrect;
