@@ -12,9 +12,13 @@
 	NSTrackingArea *_trackingArea;
 	NSViewAnimation *_animation;
 	NSImage *_image;
+	NSInteger _workspace, _windowCount;
+	NSLock *_imageLock;
 	
 	NSUInteger _direction;
 }
+
+@property(retain) NSImage *image;
 
 - (id)initWithFrame:(NSRect)frame workspace:(NSInteger)workspace direction:(NSUInteger)direction;
 

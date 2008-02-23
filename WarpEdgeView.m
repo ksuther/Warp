@@ -12,11 +12,20 @@
 #import "CoreGraphicsPrivate.h"
 #import <QuartzCore/QuartzCore.h>
 
+extern OSStatus CGSGetWindowBounds(NSInteger cid, CGWindowID wid, CGRect *rect);
+extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
+
+@interface NSApplication (ContextID)
+- (NSInteger)contextID;
+@end
+
 @interface WarpEdgeView (Private)
-- (void)_createThumbnailForWorkspace:(NSInteger)workspace;
+- (void)_createThumbnail;
 @end
 
 @implementation WarpEdgeView
+
+@synthesize image = _image;
 
 - (id)initWithFrame:(NSRect)frame workspace:(NSInteger)workspace direction:(NSUInteger)direction
 {
@@ -26,6 +35,11 @@
 		
 		_animation = nil;
 		_direction = direction;
+		_workspace = workspace;
+		_image = nil;
+		_imageLock = [[NSLock alloc] init];
+		
+		CGSGetWorkspaceWindowCount(_CGSDefaultConnection(), workspace + 1, &_windowCount);
 		
 		[self setWantsLayer:YES];
 		[self layer].cornerRadius = 10.0f;
@@ -36,7 +50,8 @@
 		[self layer].borderWidth = 2.0f;
 		CGColorRelease(color);
 		
-		[self _createThumbnailForWorkspace:workspace];
+		//[self _createThumbnail];
+		[NSThread detachNewThreadSelector:@selector(_createThumbnail) toTarget:self withObject:nil];
 	}
 	return self;
 }
@@ -45,6 +60,7 @@
 {
 	[_animation release];
 	[_image release];
+	[_imageLock release];
 	[super dealloc];
 }
 
@@ -53,7 +69,7 @@
 	[[NSColor colorWithCalibratedWhite:0.0f alpha:0.7f] set];
 	[NSBezierPath fillRect:rect];
 	
-	if (_image) {
+	if ([self image]) {
 		NSPoint drawPoint;
 		drawPoint = NSMakePoint(5.0f, 3.0f);
 		
@@ -67,16 +83,22 @@
 			drawPoint.y += 15.0f;
 		}
 		
-		[_image compositeToPoint:drawPoint operation:NSCompositeSourceOver];
+		[[self image] compositeToPoint:drawPoint operation:NSCompositeSourceOver];
 	} else {
 		//No windows on the space, draw no windows text.
-		NSString *noWindowsString = NSLocalizedString(@"No windows", nil);
+		NSString *drawString;
 		NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSColor colorWithCalibratedWhite:0.9f alpha:1.0f], NSForegroundColorAttributeName,
 																			[NSFont labelFontOfSize:18.0f], NSFontAttributeName, nil];
 		NSRect frame = [self frame];
 		
-		NSSize size = [noWindowsString sizeWithAttributes:attributes];
-		[noWindowsString drawAtPoint:NSMakePoint((frame.size.width - size.width) / 2, (frame.size.height - size.height) / 2) withAttributes:attributes];
+		if (_windowCount == 0) {
+			drawString = NSLocalizedString(@"No windows", nil);
+		} else {
+			drawString = NSLocalizedString(@"Loading", nil);
+		}
+		
+		NSSize size = [drawString sizeWithAttributes:attributes];
+		[drawString drawAtPoint:NSMakePoint((frame.size.width - size.width) / 2, (frame.size.height - size.height) / 2) withAttributes:attributes];
 	}
 }
 
@@ -143,54 +165,93 @@
 	_animation = nil;
 }
 
-- (void)_createThumbnailForWorkspace:(NSInteger)workspace
+- (void)setNeedsDisplay
 {
-	NSInteger count, outCount;
-	CGSGetWorkspaceWindowCount(_CGSDefaultConnection(), workspace + 1, &count);
+	[self setNeedsDisplay:YES];
+}
+
+- (NSImage *)image
+{
+	id tmpImage = nil;
+	[_imageLock lock];
+	tmpImage = [_image retain];
+	[_imageLock unlock];
 	
-	NSInteger *list = malloc(sizeof(NSInteger) * count);
-	CGSGetWorkspaceWindowList(_CGSDefaultConnection(), workspace + 1, count, list, &outCount);
+	return [tmpImage autorelease];
+}
+
+- (void)setImage:(NSImage *)image
+{
+	id originalValue;
+
+	[image retain];
+
+	[_imageLock lock];
+	originalValue = _image;
+	_image = image;
+	[_imageLock unlock];
+
+	[originalValue release];
+}
+
+- (void)_createThumbnail
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	if (outCount == 0) {
-		_image = nil;
-		return;
+	NSInteger count = _windowCount, outCount, drawCount = 0;
+	
+	if (count > 0) {
+		NSInteger *list = malloc(sizeof(NSInteger) * count);
+		NSInteger *drawList = calloc(count, sizeof(NSInteger));
+		CGSGetWorkspaceWindowList(_CGSDefaultConnection(), _workspace + 1, count, list, &outCount);
+		
+		NSSize screenSize = [[NSScreen mainScreen] frame].size;
+		NSSize size = [self frame].size;
+		
+		if (_direction == LeftDirection) {
+			size.width -= 21.0f;
+		} else if (_direction == RightDirection) {
+			size.width -= 27.0f;
+		} else {
+			size.width -= 10.0f;
+		}
+		
+		size.height -= (_direction == UpDirection || _direction == DownDirection) ? 21.0f : 6.0f;
+		
+		NSImage *image = [[NSImage alloc] initWithSize:size];
+		[image setCachedSeparately:YES];
+		[image lockFocus];
+		
+		CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+		
+		CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
+		
+		//Determine which windows are top-most so we don't have to draw the windows that aren't even visible
+		for (NSInteger i = 0; i < outCount; i++) {
+			drawList[drawCount++] = list[i];
+		}
+		
+		for (NSInteger i = drawCount - 1; i >= 0; i--) {
+			NSInteger cid = [NSApp contextID];
+			
+			CGRect cgrect;
+			CGSGetWindowBounds(cid, drawList[i], &cgrect);
+			
+			cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
+			
+			CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
+			CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, drawList[i], 0);
+			CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
+		}
+		
+		[image unlockFocus];
+		
+		[self setImage:image];
+		
+		[self performSelectorOnMainThread:@selector(setNeedsDisplay) withObject:nil waitUntilDone:NO];
 	}
 	
-	NSSize screenSize = [[NSScreen mainScreen] frame].size;
-	NSSize size = [self frame].size;
-	
-	if (_direction == LeftDirection) {
-		size.width -= 21.0f;
-	} else if (_direction == RightDirection) {
-		size.width -= 27.0f;
-	} else {
-		size.width -= 10.0f;
-	}
-	
-	size.height -= (_direction == UpDirection || _direction == DownDirection) ? 21.0f : 6.0f;
-	
-	[_image release];
-	_image = [[NSImage alloc] initWithSize:size];
-	
-	[_image lockFocus];
-	CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-	
-	CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
-	
-	for (NSInteger i = outCount - 1; i >= 0; i--) {
-		NSInteger cid = (NSInteger)[NSApp contextID];
-		
-		CGRect cgrect;
-		CGSGetWindowBounds(cid, list[i], &cgrect);
-		
-		cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
-		
-		CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
-		CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
-		CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
-	}
-	
-	[_image unlockFocus];
+	[pool release];
 }
 
 @end
