@@ -45,10 +45,14 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		[self layer].cornerRadius = 10.0f;
 		[self layer].masksToBounds = YES;
 		
-		CGColorRef color = CGColorCreateGenericGray(1.0f, 1.0f);
-		[self layer].borderColor = color;
+		CGColorRef borderColor = CGColorCreateGenericGray(1.0f, 1.0f);
+		[self layer].borderColor = borderColor;
 		[self layer].borderWidth = 2.0f;
-		CGColorRelease(color);
+		CGColorRelease(borderColor);
+		
+		CGColorRef backgroundColor = CGColorCreateGenericGray(0.0f, 0.7f);
+		[self layer].backgroundColor = backgroundColor;
+		CGColorRelease(backgroundColor);
 		
 		//[self _createThumbnail];
 		[NSThread detachNewThreadSelector:@selector(_createThumbnail) toTarget:self withObject:nil];
@@ -66,9 +70,6 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 - (void)drawRect:(NSRect)rect
 {
-	[[NSColor colorWithCalibratedWhite:0.0f alpha:0.7f] set];
-	[NSBezierPath fillRect:rect];
-	
 	if ([self image]) {
 		NSPoint drawPoint;
 		drawPoint = NSMakePoint(5.0f, 3.0f);
@@ -84,20 +85,14 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		}
 		
 		[[self image] compositeToPoint:drawPoint operation:NSCompositeSourceOver];
-	} else {
+	} else if (_windowCount == 0) {
 		//No windows on the space, draw no windows text.
-		NSString *drawString;
+		NSRect frame = [self frame];
+		NSString *drawString = NSLocalizedString(@"No windows", nil);
 		NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSColor colorWithCalibratedWhite:0.9f alpha:1.0f], NSForegroundColorAttributeName,
 																			[NSFont labelFontOfSize:18.0f], NSFontAttributeName, nil];
-		NSRect frame = [self frame];
-		
-		if (_windowCount == 0) {
-			drawString = NSLocalizedString(@"No windows", nil);
-		} else {
-			drawString = NSLocalizedString(@"Loading", nil);
-		}
-		
 		NSSize size = [drawString sizeWithAttributes:attributes];
+		
 		[drawString drawAtPoint:NSMakePoint((frame.size.width - size.width) / 2, (frame.size.height - size.height) / 2) withAttributes:attributes];
 	}
 }
@@ -198,11 +193,14 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	NSInteger count = _windowCount, outCount, drawCount = 0;
+	NSInteger count = _windowCount;
 	
 	if (count > 0) {
+		NSInteger outCount;
+		NSInteger cid = [NSApp contextID];
+		CGRect cgrect;
+		
 		NSInteger *list = malloc(sizeof(NSInteger) * count);
-		NSInteger *drawList = calloc(count, sizeof(NSInteger));
 		CGSGetWorkspaceWindowList(_CGSDefaultConnection(), _workspace + 1, count, list, &outCount);
 		
 		NSSize screenSize = [[NSScreen mainScreen] frame].size;
@@ -226,28 +224,19 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		
 		CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
 		
-		//Determine which windows are top-most so we don't have to draw the windows that aren't even visible
-		for (NSInteger i = 0; i < outCount; i++) {
-			drawList[drawCount++] = list[i];
-		}
-		
-		for (NSInteger i = drawCount - 1; i >= 0; i--) {
-			NSInteger cid = [NSApp contextID];
-			
-			CGRect cgrect;
-			CGSGetWindowBounds(cid, drawList[i], &cgrect);
+		for (NSInteger i = outCount - 1; i >= 0; i--) {
+			CGSGetWindowBounds(cid, list[i], &cgrect);
 			
 			cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
 			
 			CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
-			CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, drawList[i], 0);
+			CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
 			CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
 		}
 		
 		[image unlockFocus];
 		
 		[self setImage:image];
-		
 		[self performSelectorOnMainThread:@selector(setNeedsDisplay) withObject:nil waitUntilDone:NO];
 	}
 	
