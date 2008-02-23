@@ -12,13 +12,15 @@
 @interface WarpEdgeWindow : NSWindow {
 	Edge _edge;
 	NSUInteger _direction;
+	BOOL _exited;
 }
 
 @property(assign) NSUInteger direction;
 
-+ (WarpEdgeWindow *)windowWithEdge:(Edge *)edge direction:(NSUInteger)direction;
++ (WarpEdgeWindow *)windowWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction;
 
-- (id)initWithEdge:(Edge *)edge direction:(NSUInteger)direction;
+- (id)initWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction;
+
 - (Edge *)edge;
 - (void)setEdge:(Edge *)edge;
 

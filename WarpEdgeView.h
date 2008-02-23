@@ -9,7 +9,13 @@
 #import <Cocoa/Cocoa.h>
 
 @interface WarpEdgeView : NSView {
+	NSTrackingArea *_trackingArea;
 	NSViewAnimation *_animation;
+	NSImage *_image;
+	
+	NSUInteger _direction;
 }
+
+- (id)initWithFrame:(NSRect)frame workspace:(NSInteger)workspace direction:(NSUInteger)direction;
 
 @end

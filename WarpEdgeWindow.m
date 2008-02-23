@@ -9,45 +9,48 @@
 #import "WarpEdgeWindow.h"
 #import "WarpEdgeView.h"
 
-static const CGFloat kWarpEdgeWidth = 15.0f;
+static const CGFloat kWarpEdgeWidth = 240.0f;
 
 @implementation WarpEdgeWindow
 
 @synthesize direction = _direction;
 
-+ (WarpEdgeWindow *)windowWithEdge:(Edge *)edge direction:(NSUInteger)direction
++ (WarpEdgeWindow *)windowWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction
 {
-	return [[[WarpEdgeWindow alloc] initWithEdge:edge direction:direction] autorelease];
+	return [[[WarpEdgeWindow alloc] initWithEdge:edge workspace:workspace direction:direction] autorelease];
 }
 
-- (id)initWithEdge:(Edge *)edge direction:(NSUInteger)direction
+- (id)initWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction
 {
 	NSRect contentRect;
+	NSPoint mouseLoc = [NSEvent mouseLocation];
+	NSRect screenFrame = [edge->screen frame];
+	CGFloat width = screenFrame.size.width * 0.15f;
+	CGFloat height = width * screenFrame.size.height / screenFrame.size.width;
+	
+	contentRect.size.width = width + 6.0f;
+	contentRect.size.height = height + 6.0f;
 	
 	if (direction == LeftDirection) {
-		contentRect.origin.x = edge->point;
-		contentRect.size.width = kWarpEdgeWidth;
+		contentRect.origin.x = edge->point - 15.0f;
+		contentRect.origin.y = mouseLoc.y - (height / 2);
 		
-		contentRect.origin.y = edge->range.location;
-		contentRect.size.height = edge->range.length;
+		contentRect.size.width += 15.0f;
 	} else if (direction == RightDirection) {
-		contentRect.origin.x = edge->point - kWarpEdgeWidth + 1;
-		contentRect.size.width = kWarpEdgeWidth;
+		contentRect.origin.x = edge->point - width + 1.0f;
+		contentRect.origin.y = mouseLoc.y - (height / 2);
 		
-		contentRect.origin.y = edge->range.location;
-		contentRect.size.height = edge->range.length;
+		contentRect.size.width += 15.0f;
 	} else if (direction == UpDirection) {
-		contentRect.origin.y = [edge->screen frame].size.height - kWarpEdgeWidth;
-		contentRect.size.height = kWarpEdgeWidth;
+		contentRect.origin.y = screenFrame.size.height - height;
+		contentRect.origin.x = mouseLoc.x - (width / 2);
 		
-		contentRect.origin.x = edge->range.location;
-		contentRect.size.width = edge->range.length;
+		contentRect.size.height += 15.0f;
 	} else if (direction == DownDirection) {
-		contentRect.origin.y = [edge->screen frame].origin.y;
-		contentRect.size.height = kWarpEdgeWidth;
+		contentRect.origin.y = screenFrame.origin.y - 15.0f;
+		contentRect.origin.x = mouseLoc.x - (width / 2);
 		
-		contentRect.origin.x = edge->range.location;
-		contentRect.size.width = edge->range.length;
+		contentRect.size.height += 15.0f;
 	} else {
 		return nil;
 	}
@@ -56,10 +59,11 @@ static const CGFloat kWarpEdgeWidth = 15.0f;
 		_edge = *edge;
 		_direction = direction;
 		
-		[self setContentView:[[[WarpEdgeView alloc] initWithFrame:contentRect] autorelease]];
+		[self setContentView:[[[WarpEdgeView alloc] initWithFrame:contentRect workspace:workspace direction:direction] autorelease]];
 		[self setLevel:NSScreenSaverWindowLevel];
 		[self setBackgroundColor:[NSColor clearColor]];
 		[self setOpaque:NO];
+		[self setAcceptsMouseMovedEvents:YES];
 		[self setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
 	}
 	return self;

@@ -297,15 +297,17 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	if ([self requiredModifiersDown]) {
 		Edge *edge = [[[timer userInfo] objectForKey:@"Edge"] pointerValue];
 		
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"]) {
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"] &&
+				!([[NSUserDefaults standardUserDefaults] boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar)) {
 			NSPoint spacePoint = [self getSpaceInDirection:direction];
+			NSInteger spacesIndex = [self spacesIndexForRow:spacePoint.y column:spacePoint.x];
 			
-			if ([self spacesIndexForRow:spacePoint.y column:spacePoint.x] > -1 &&
+			if (spacesIndex > -1 &&
 					(!_edgeWindow || ![_edgeWindow isVisible] || !equalEdges([_edgeWindow edge], edge))) {
 				[_edgeWindow orderOut:nil];
 				[_edgeWindow release];
 				
-				_edgeWindow = [[WarpEdgeWindow windowWithEdge:edge direction:direction] retain];
+				_edgeWindow = [[WarpEdgeWindow windowWithEdge:edge workspace:spacesIndex direction:direction] retain];
 				[_edgeWindow setAlphaValue:0.0f];
 				[_edgeWindow orderFront:nil];
 				[[_edgeWindow animator] setAlphaValue:1.0f];
