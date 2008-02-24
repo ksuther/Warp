@@ -383,7 +383,9 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 					break;
 			}
 			
-			CGWarpMouseCursorPosition(_warpMouse ? warpLocation : mouseLocation);
+			if (_warpMouse || ![df boolForKey:@"ClickToWarp"]) {
+				CGWarpMouseCursorPosition(_warpMouse ? warpLocation : mouseLocation);
+			}
 			
 			if ([df boolForKey:@"ClickToWarp"]) {
 				//Determine if the click-to-warp floating window should be hidden
