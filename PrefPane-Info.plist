@@ -29,6 +29,6 @@
 	<key>NSPrincipalClass</key>
 	<string>WarpPreferences</string>
 	<key>VersionNumber</key>
-	<integer>101</integer>
+	<integer>110</integer>
 </dict>
 </plist>

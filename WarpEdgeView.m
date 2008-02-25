@@ -238,6 +238,8 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		
 		[self setImage:image];
 		[self performSelectorOnMainThread:@selector(setNeedsDisplay) withObject:nil waitUntilDone:NO];
+		
+		free(list);
 	}
 	
 	[pool release];
