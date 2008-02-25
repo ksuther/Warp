@@ -42,7 +42,7 @@ static const CGFloat kWarpEdgeWidth = 240.0f;
 		
 		contentRect.size.width += 15.0f;
 	} else if (direction == UpDirection) {
-		contentRect.origin.y = screenFrame.size.height - height;
+		contentRect.origin.y = screenFrame.origin.y + screenFrame.size.height - height;
 		contentRect.origin.x = mouseLoc.x - (width / 2);
 		
 		contentRect.size.height += 15.0f;
