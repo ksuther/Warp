@@ -20,7 +20,7 @@ static const CGFloat kWarpEdgeWidth = 240.0f;
 	return [[[WarpEdgeWindow alloc] initWithEdge:edge workspace:workspace direction:direction] autorelease];
 }
 
-- (id)initWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction
++ (NSRect)frameForEdge:(Edge *)edge direction:(NSUInteger)direction
 {
 	NSRect contentRect;
 	NSPoint mouseLoc = [NSEvent mouseLocation];
@@ -52,8 +52,15 @@ static const CGFloat kWarpEdgeWidth = 240.0f;
 		
 		contentRect.size.height += 15.0f;
 	} else {
-		return nil;
+		return NSZeroRect;
 	}
+	
+	return contentRect;
+}
+
+- (id)initWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction
+{
+	NSRect contentRect = [WarpEdgeWindow frameForEdge:edge direction:direction];
 	
 	if ( (self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES]) ) {
 		_edge = *edge;

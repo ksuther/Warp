@@ -18,6 +18,7 @@
 @property(assign) NSUInteger direction;
 
 + (WarpEdgeWindow *)windowWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction;
++ (NSRect)frameForEdge:(Edge *)edge direction:(NSUInteger)direction;
 
 - (id)initWithEdge:(Edge *)edge workspace:(NSInteger)workspace direction:(NSUInteger)direction;
 

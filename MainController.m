@@ -307,8 +307,12 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				[_edgeWindow orderOut:nil];
 				[_edgeWindow release];
 				
-				_edgeWindow = [[WarpEdgeWindow windowWithEdge:edge workspace:spacesIndex direction:direction] retain];
-				[_edgeWindow orderFront:nil];
+				if (NSPointInRect([NSEvent mouseLocation], [WarpEdgeWindow frameForEdge:edge direction:direction])) {
+					_edgeWindow = [[WarpEdgeWindow windowWithEdge:edge workspace:spacesIndex direction:direction] retain];
+					[_edgeWindow orderFront:nil];
+				} else {
+					_edgeWindow = nil;
+				}
 			}
 		} else {
 			[MainController warpInDirection:direction];
