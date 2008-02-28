@@ -18,6 +18,7 @@ BOOL _warpMouse, _wraparound;
 Edge *_hEdges = nil, *_vEdges = nil;
 CGRect _totalScreenRect;
 WarpEdgeWindow *_edgeWindow = nil;
+NSTimer *_warpTimer = nil;
 
 BOOL _timeMachineActive = NO;
 
@@ -132,7 +133,11 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	
 	if (direction != -1) {
 		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:direction], @"Direction", [NSValue valueWithPointer:edge], @"Edge", nil];
-		[NSTimer scheduledTimerWithTimeInterval:_activationDelay target:[MainController class] selector:@selector(timerFired:) userInfo:info repeats:NO];
+		
+		if ([[[_warpTimer userInfo] objectForKey:@"Edge"] pointerValue] != edge) {
+			[_warpTimer invalidate];
+			_warpTimer = [NSTimer scheduledTimerWithTimeInterval:_activationDelay target:[MainController class] selector:@selector(timerFired:) userInfo:info repeats:NO];
+		}
 	}
 	
 	return CallNextEventHandler(nextHandler, theEvent);
@@ -293,10 +298,19 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 + (void)timerFired:(NSTimer *)timer
 {
 	NSUInteger direction = [[[timer userInfo] objectForKey:@"Direction"] unsignedIntValue];
+	Edge *edge = [[[timer userInfo] objectForKey:@"Edge"] pointerValue];
+	BOOL onEdge = NO;
+	CGPoint mouseLocation;
 	
-	if ([self requiredModifiersDown]) {
-		Edge *edge = [[[timer userInfo] objectForKey:@"Edge"] pointerValue];
-		
+	HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
+	
+	if (direction == UpDirection || direction == DownDirection) {
+		onEdge = edge->point == mouseLocation.y;
+	} else {
+		onEdge = edge->point == mouseLocation.x;
+	}
+	
+	if (onEdge && [self requiredModifiersDown]) {
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"] &&
 				!([[NSUserDefaults standardUserDefaults] boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar)) {
 			NSPoint spacePoint = [self getSpaceInDirection:direction];
@@ -315,18 +329,19 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 				}
 			}
 		} else {
-			[MainController warpInDirection:direction];
+			[MainController warpInDirection:direction edge:edge];
 		}
 	}
+	
+	_warpTimer = nil;
 }
 
-+ (void)warpInDirection:(NSUInteger)direction
++ (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge
 {
 	if (!_timeMachineActive && ![self isScreenSaverRunning]) {
 		CGPoint mouseLocation, warpLocation;
 		NSInteger row, col;
 		BOOL switchedSpace = NO;
-		Edge *edge = nil;
 		NSUserDefaults *df = [NSUserDefaults standardUserDefaults];
 		
 		HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
@@ -342,16 +357,6 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		NSPoint newSpace = [self getSpaceInDirection:direction];
 		row = newSpace.y;
 		col = newSpace.x;
-		
-		if (direction == UpDirection || direction == DownDirection) {
-			edge = edgeForValueInRange(_vEdges, mouseLocation.y, mouseLocation.x);
-		} else {
-			edge = edgeForValueInRange(_hEdges, mouseLocation.x, mouseLocation.y);
-		}
-		
-		if (!edge) {
-			return;
-		}
 		
 		BOOL validEdgeDirection = edge->isLeftOrTop;
 		

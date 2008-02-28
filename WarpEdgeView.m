@@ -114,7 +114,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 - (void)mouseDown:(NSEvent *)event
 {
-	[MainController warpInDirection:[(WarpEdgeWindow *)[self window] direction]];
+	[MainController warpInDirection:[(WarpEdgeWindow *)[self window] direction] edge:[(WarpEdgeWindow *)[self window] edge]];
 }
 
 - (void)mouseEntered:(NSEvent *)event
