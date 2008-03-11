@@ -97,6 +97,8 @@
 		371C7FA50D4092FC0013C101 /* French */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = French; path = French.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		371C7FAF0D4116030013C101 /* Italian */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
 		371C7FB30D4116A10013C101 /* Italian */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Italian; path = Italian.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
+		372192550D864868006387D2 /* zh_TW */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = zh_TW; path = zh_TW.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
+		372192560D86486D006387D2 /* zh_TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh_TW; path = zh_TW.lproj/Localizable.strings; sourceTree = "<group>"; };
 		374345FA0D63A83900189144 /* WarpEdgeWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpEdgeWindow.h; sourceTree = "<group>"; };
 		374345FB0D63A83900189144 /* WarpEdgeWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpEdgeWindow.m; sourceTree = "<group>"; };
 		374346480D63ADCC00189144 /* WarpEdgeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpEdgeView.h; sourceTree = "<group>"; };
@@ -319,6 +321,7 @@
 				French,
 				German,
 				Italian,
+				zh_TW,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Warp */;
 			projectDirPath = "";
@@ -419,6 +422,7 @@
 				371C7FAF0D4116030013C101 /* Italian */,
 				37434ACE0D653FA200189144 /* German */,
 				37434AD30D6540DA00189144 /* Japanese */,
+				372192560D86486D006387D2 /* zh_TW */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -431,6 +435,7 @@
 				371C7FB30D4116A10013C101 /* Italian */,
 				37434AD60D6541E900189144 /* Japanese */,
 				37434AD70D6541EE00189144 /* German */,
+				372192550D864868006387D2 /* zh_TW */,
 			);
 			name = WarpPreferences.xib;
 			sourceTree = "<group>";

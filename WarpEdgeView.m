@@ -147,6 +147,13 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[self removeTrackingArea:_trackingArea];
 }
 
+- (NSMenu *)menuForEvent:(NSEvent *)event
+{
+	[self mouseDown:event];
+	
+	return nil;
+}
+
 - (BOOL)isOpaque
 {
 	return NO;
