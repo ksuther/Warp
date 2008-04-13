@@ -6,6 +6,8 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleGetInfoString</key>
+	<string>1.1.1, © 2007-2008 Kent Sutherland</string>
 	<key>CFBundleIconFile</key>
 	<string>Warp.icns</string>
 	<key>CFBundleIdentifier</key>
