@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>WrpP</string>
 	<key>CFBundleVersion</key>
-	<string>1.1</string>
+	<string>1.1.1</string>
 	<key>NSMainNibFile</key>
 	<string>WarpPreferences</string>
 	<key>NSPrefPaneIconLabel</key>
@@ -29,6 +29,6 @@
 	<key>NSPrincipalClass</key>
 	<string>WarpPreferences</string>
 	<key>VersionNumber</key>
-	<integer>110</integer>
+	<integer>111</integer>
 </dict>
 </plist>
