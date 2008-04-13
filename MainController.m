@@ -11,6 +11,8 @@
 #import "CoreGraphicsPrivate.h"
 #import "ScreenSaver.h"
 
+static const int WarpCornerPadding = 30;
+
 NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 float _activationDelay;
 NSUInteger _activationModifiers;
@@ -371,23 +373,23 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 		if (switchedSpace) {
 			switch (direction) {
 				case LeftDirection:
-					warpLocation.x = _totalScreenRect.origin.x + _totalScreenRect.size.width - 20;
+					warpLocation.x = _totalScreenRect.origin.x + _totalScreenRect.size.width - WarpCornerPadding;
 					warpLocation.y = mouseLocation.y;
 					mouseLocation.x += 3;
 					break;
 				case RightDirection:
-					warpLocation.x = _totalScreenRect.origin.x + 20;
+					warpLocation.x = _totalScreenRect.origin.x + WarpCornerPadding;
 					warpLocation.y = mouseLocation.y;
 					mouseLocation.x -= 3;
 					break;
 				case DownDirection:
 					warpLocation.x = mouseLocation.x;
-					warpLocation.y = _totalScreenRect.origin.y + 20;
+					warpLocation.y = _totalScreenRect.origin.y + WarpCornerPadding;
 					mouseLocation.y -= 3;
 					break;
 				case UpDirection:
 					warpLocation.x = mouseLocation.x;
-					warpLocation.y = _totalScreenRect.origin.y + _totalScreenRect.size.height - 20;
+					warpLocation.y = _totalScreenRect.origin.y + _totalScreenRect.size.height - WarpCornerPadding;
 					mouseLocation.y += 3;
 					break;
 			}
