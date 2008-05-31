@@ -238,17 +238,20 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 + (NSPoint)getSpaceInDirection:(NSUInteger)direction row:(NSInteger)row column:(NSInteger)col
 {
+	NSInteger rows = [MainController numberOfSpacesRows];
+	NSInteger cols = [MainController numberOfSpacesColumns];
+	
 	switch (direction) {
 		case LeftDirection:
-			if (_wraparound && col == 1) {
+			if (_wraparound && col == 1 && cols > 1) {
 				//Wrap to the rightmost space
-				col = [MainController numberOfSpacesColumns] + 1;
+				col = cols + 1;
 			}
 			
 			col--;
 			break;
 		case RightDirection:
-			if (_wraparound && col == [MainController numberOfSpacesColumns]) {
+			if (_wraparound && col == cols && cols > 1) {
 				//Wrap to the leftmost space
 				col = 0;
 			}
@@ -256,7 +259,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 			col++;
 			break;
 		case DownDirection:
-			if (_wraparound && row == [MainController numberOfSpacesRows]) {
+			if (_wraparound && row == rows && rows > 1) {
 				//Wrap to the top space
 				row = 0;
 			}
@@ -264,9 +267,9 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 			row++;
 			break;
 		case UpDirection:
-			if (_wraparound && row == 1) {
+			if (_wraparound && row == 1 && rows > 1) {
 				//Wrap to the lowest space
-				row = [MainController numberOfSpacesRows] + 1;
+				row = rows + 1;
 			}
 			
 			row--;
