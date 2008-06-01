@@ -193,23 +193,19 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	return _activationModifiers == 0 || (GetCurrentKeyModifiers() & _activationModifiers) == _activationModifiers;
 }
 
-+ (BOOL)isScreenSaverRunning
++ (BOOL)isSecurityAgentActive
 {
-	BOOL running = NO;
-	ProcessSerialNumber number;
-	number.highLongOfPSN = kNoProcess;
-	number.lowLongOfPSN = 0;
-
-	while ( (GetNextProcess(&number) == noErr) ) {
+	ProcessSerialNumber psn;
+	BOOL active = NO;
+	
+	if (GetFrontProcess(&psn) == noErr) {
 		CFStringRef name;
-		if ((CopyProcessName(&number, &name) == noErr) && [(NSString *)name isEqualToString:@"ScreenSaverEngine"] && [[ScreenSaverController controller] screenSaverIsRunning]) {
-			running = YES;
-			break;
-		}
+		CopyProcessName(&psn, &name);
+		active = [(NSString *)name isEqualToString:@"SecurityAgent"];
 		[(NSString *)name release];
 	}
 	
-	return running;
+	return active;
 }
 
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column
@@ -343,7 +339,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 + (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge
 {
-	if (!_timeMachineActive && ![self isScreenSaverRunning]) {
+	if (!_timeMachineActive && ![self isSecurityAgentActive]) {
 		CGPoint mouseLocation, warpLocation;
 		NSInteger row, col;
 		BOOL switchedSpace = NO;
