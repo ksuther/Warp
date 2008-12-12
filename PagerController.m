@@ -63,8 +63,15 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[self performSelector:@selector(updatePager) withObject:nil afterDelay:1.0];
 }
 
+- (void)windowMoved:(NSNotification *)note
+{
+	[[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([_pagerPanel frame]) forKey:@"PagerFrame"];
+}
+
 - (void)windowResized:(NSNotification *)note
 {
+	[[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([_pagerPanel frame]) forKey:@"PagerFrame"];
+	
 	[_frameLayer setNeedsDisplay];
 }
 
@@ -201,13 +208,20 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 											 styleMask:NSUtilityWindowMask | NSNonactivatingPanelMask
 											   backing:NSBackingStoreBuffered defer:NO];
 	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowMoved:) name:NSWindowDidMoveNotification object:_pagerPanel];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowResized:) name:NSWindowDidResizeNotification object:_pagerPanel];
 	
 	NSView *contentView = [[[NSView alloc] initWithFrame:[_pagerPanel frame]] autorelease];
 	[contentView setWantsLayer:YES];
 	[_pagerPanel setContentView:contentView];
 	
-	[_pagerPanel setFrameAutosaveName:@"Pager"];
+	NSString *savedFrameString = [[NSUserDefaults standardUserDefaults] stringForKey:@"PagerFrame"];
+	NSRect savedFrame = NSRectFromString(savedFrameString);
+	
+	if (savedFrameString && !NSEqualRects(savedFrame, NSZeroRect)) {
+		[_pagerPanel setFrame:savedFrame display:NO];
+	}
+	
 	[_pagerPanel setBackgroundColor:[NSColor clearColor]];
 	[_pagerPanel setOpaque:NO];
 	[_pagerPanel setContentAspectRatio:pagerSize];
