@@ -30,6 +30,7 @@
 		375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
 		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
 		375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */; };
+		37532A890ED71904006805B3 /* PagerPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 37532A880ED71904006805B3 /* PagerPanel.m */; };
 		3790F6390CDA71C400A034FA /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3790F6380CDA71C400A034FA /* MainController.m */; };
 		3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F65A0CDA73C400A034FA /* Carbon.framework */; };
 		3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F76A0CDA804300A034FA /* ApplicationServices.framework */; };
@@ -39,6 +40,8 @@
 		3790F8FD0CDB05F100A034FA /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */; };
 		3790F9150CDB864E00A034FA /* WarpPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3790F9130CDB864E00A034FA /* WarpPreferences.xib */; };
 		3790FC190CDEF6F700A034FA /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */; };
+		379D46C20ED79FA700751DB8 /* PagerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 379D46C10ED79FA700751DB8 /* PagerView.m */; };
+		37D0E3ED0ED7110F0037F407 /* PagerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D0E3EC0ED7110F0037F407 /* PagerController.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -114,10 +117,11 @@
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
 		375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
+		37532A870ED71904006805B3 /* PagerPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerPanel.h; sourceTree = "<group>"; };
+		37532A880ED71904006805B3 /* PagerPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerPanel.m; sourceTree = "<group>"; };
 		3790F6370CDA71C400A034FA /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		3790F6380CDA71C400A034FA /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		3790F65A0CDA73C400A034FA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
-		3790F7660CDA7FFF00A034FA /* CoreGraphicsPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreGraphicsPrivate.h; sourceTree = "<group>"; };
 		3790F76A0CDA804300A034FA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		3790F8C00CDB042200A034FA /* Warp.prefPane */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Warp.prefPane; sourceTree = BUILT_PRODUCTS_DIR; };
 		3790F8C10CDB042200A034FA /* PrefPane-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PrefPane-Info.plist"; sourceTree = "<group>"; };
@@ -128,7 +132,12 @@
 		3790F9140CDB864E00A034FA /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		3790FB500CDEF6E500A034FA /* SystemEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemEvents.h; sourceTree = "<group>"; };
 		3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = /System/Library/Frameworks/ScriptingBridge.framework; sourceTree = "<absolute>"; };
+		379D46C00ED79FA700751DB8 /* PagerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerView.h; sourceTree = "<group>"; };
+		379D46C10ED79FA700751DB8 /* PagerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerView.m; sourceTree = "<group>"; };
 		37B04B130D2AE86700380FB3 /* WarpRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpRange.h; sourceTree = "<group>"; };
+		37D0E3E30ED7109D0037F407 /* CGSPrivate2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGSPrivate2.h; sourceTree = "<group>"; };
+		37D0E3EB0ED7110F0037F407 /* PagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerController.h; sourceTree = "<group>"; };
+		37D0E3EC0ED7110F0037F407 /* PagerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerController.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* WarpDaemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WarpDaemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -168,6 +177,7 @@
 				374345FB0D63A83900189144 /* WarpEdgeWindow.m */,
 				374346480D63ADCC00189144 /* WarpEdgeView.h */,
 				374346490D63ADCC00189144 /* WarpEdgeView.m */,
+				37532A860ED718FC006805B3 /* Pager */,
 				3790F8F20CDB05B200A034FA /* Preference Pane */,
 			);
 			name = Classes;
@@ -222,8 +232,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				3790F7660CDA7FFF00A034FA /* CoreGraphicsPrivate.h */,
 				37434A5F0D64BEEA00189144 /* ScreenSaver.h */,
+				37D0E3E30ED7109D0037F407 /* CGSPrivate2.h */,
 				37B04B130D2AE86700380FB3 /* WarpRange.h */,
 				32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
@@ -253,6 +263,19 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		37532A860ED718FC006805B3 /* Pager */ = {
+			isa = PBXGroup;
+			children = (
+				37D0E3EB0ED7110F0037F407 /* PagerController.h */,
+				37D0E3EC0ED7110F0037F407 /* PagerController.m */,
+				37532A870ED71904006805B3 /* PagerPanel.h */,
+				37532A880ED71904006805B3 /* PagerPanel.m */,
+				379D46C00ED79FA700751DB8 /* PagerView.h */,
+				379D46C10ED79FA700751DB8 /* PagerView.m */,
+			);
+			name = Pager;
 			sourceTree = "<group>";
 		};
 		3790F8F20CDB05B200A034FA /* Preference Pane */ = {
@@ -374,6 +397,9 @@
 				3790F6390CDA71C400A034FA /* MainController.m in Sources */,
 				374345FC0D63A83900189144 /* WarpEdgeWindow.m in Sources */,
 				3743464A0D63ADCC00189144 /* WarpEdgeView.m in Sources */,
+				37D0E3ED0ED7110F0037F407 /* PagerController.m in Sources */,
+				37532A890ED71904006805B3 /* PagerPanel.m in Sources */,
+				379D46C20ED79FA700751DB8 /* PagerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

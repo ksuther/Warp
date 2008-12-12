@@ -9,10 +9,9 @@
 #import "WarpEdgeView.h"
 #import "WarpEdgeWindow.h"
 #import "MainController.h"
-#import "CoreGraphicsPrivate.h"
+#import "CGSPrivate2.h"
 #import <QuartzCore/QuartzCore.h>
 
-extern OSStatus CGSGetWindowBounds(NSInteger cid, CGWindowID wid, CGRect *rect);
 extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
 
 @interface NSApplication (ContextID)
@@ -21,6 +20,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 @interface WarpEdgeView (Private)
 - (void)_createThumbnail;
+- (BOOL)_isWarpWindow:(CGSWindowID)wid;
 @end
 
 @implementation WarpEdgeView
@@ -196,6 +196,9 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[originalValue release];
 }
 
+#pragma mark -
+#pragma mark Private
+
 - (void)_createThumbnail
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -232,13 +235,15 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
 		
 		for (NSInteger i = outCount - 1; i >= 0; i--) {
-			CGSGetWindowBounds(cid, list[i], &cgrect);
-			
-			cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
-			
-			CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
-			CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
-			CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
+			if (![self _isWarpWindow:list[i]]) {
+				CGSGetWindowBounds(cid, list[i], &cgrect);
+				
+				cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
+				
+				CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
+				CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
+				CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
+			}
 		}
 		
 		[image unlockFocus];
@@ -250,6 +255,17 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	}
 	
 	[pool release];
+}
+
+- (BOOL)_isWarpWindow:(CGSWindowID)wid
+{
+	for (NSWindow *window in [NSApp windows]) {
+		if ([window windowNumber] == wid) {
+			return YES;
+		}
+	}
+	
+	return NO;
 }
 
 @end

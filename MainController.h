@@ -26,10 +26,13 @@ enum {
 	DownDirection
 };
 
-@class WarpEdgeWindow;
+@class WarpEdgeWindow, PagerController;
 
 @interface MainController : NSObject {
 	EventHandlerRef mouseHandler;
+	EventHandlerUPP mouseMovedHandlerUPP;
+	
+	PagerController *_pagerController;
 }
 
 + (NSInteger)numberOfSpacesRows;
@@ -37,6 +40,8 @@ enum {
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column;
 + (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge;
 + (BOOL)switchToSpaceRow:(NSInteger)row column:(NSInteger)column;
++ (BOOL)switchToSpaceIndex:(NSInteger)index;
++ (NSInteger)spacesIndexForRow:(NSInteger)row column:(NSInteger)column;
 
 - (void)updateWarpRects;
 

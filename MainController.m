@@ -8,8 +8,9 @@
 
 #import "MainController.h"
 #import "WarpEdgeWindow.h"
-#import "CoreGraphicsPrivate.h"
+#import "CGSPrivate2.h"
 #import "ScreenSaver.h"
+#import "PagerController.h"
 
 static const int WarpCornerPadding = 30;
 
@@ -144,6 +145,21 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	
 	return CallNextEventHandler(nextHandler, theEvent);
 }
+
+void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) {
+	NSInteger currentSpace = 0;
+	
+	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && currentSpace != 65538) {
+		NSDictionary *info = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentSpace] forKey:@"Space"];
+		
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"ActiveSpaceDidSwitchNotification" object:nil userInfo:info];
+	}
+}
+
+@interface MainController (Private)
+- (void)_registerCarbonEventHandlers;
+- (void)_unregisterCarbonEventHandlers;
+@end
 
 @implementation MainController
 
@@ -423,16 +439,39 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	return NO;
 }
 
++ (BOOL)switchToSpaceIndex:(NSInteger)index
+{
+	NSInteger currentSpace;
+	
+	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && currentSpace != index + 1) {
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:SwitchSpacesNotification object:[NSString stringWithFormat:@"%d", index]];
+		return YES;
+	}
+	
+	return NO;
+}
+
+- (id)init
+{
+	if ( (self = [super init]) ) {
+		_pagerController = [[PagerController alloc] init];
+	}
+	return self;
+}
+
+- (void)dealloc
+{
+	[_pagerController release];
+	
+	[super dealloc];
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)note
 {
-	EventTypeSpec eventType[2];
-	eventType[0].eventClass = kEventClassMouse;
-	eventType[0].eventKind = kEventMouseMoved;
-	eventType[1].eventClass = kEventClassMouse;
-	eventType[1].eventKind = kEventMouseDragged;
-
-	EventHandlerUPP handlerFunction = NewEventHandlerUPP(mouseMovedHandler);
-	InstallEventHandler(GetEventMonitorTarget(), handlerFunction, 2, eventType, nil, &mouseHandler);
+	[self _registerCarbonEventHandlers];
+	
+	//Register for Spaces switch notifications - http://tonyarnold.com/entries/detecting-when-the-active-space-changes-under-leopard/
+	CGSRegisterConnectionNotifyProc(_CGSDefaultConnection(), spacesSwitchCallback, 1401, (void *)self);
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(terminate:) name:@"TerminateWarpNotification" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:@"WarpDefaultsChanged" object:nil];
@@ -447,7 +486,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 
 - (void)applicationWillTerminate:(NSNotification *)note
 {
-	RemoveEventHandler(mouseHandler);
+	[self _unregisterCarbonEventHandlers];
 	
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:NSApp name:@"TerminateWarpNotification" object:nil];
@@ -492,6 +531,8 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	
 	_warpMouse = [df boolForKey:@"WarpMouse"];
 	_wraparound = [df boolForKey:@"Wraparound"];
+	
+	[self _registerCarbonEventHandlers];
 }
 
 - (void)screenParametersChanged:(NSNotification *)note
@@ -674,6 +715,40 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	#endif
 	
 	free(displays);
+}
+
+#pragma mark -
+#pragma mark Private
+
+- (void)_registerCarbonEventHandlers
+{
+	[self _unregisterCarbonEventHandlers];
+	
+	mouseMovedHandlerUPP = NewEventHandlerUPP(mouseMovedHandler);
+	
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"]) {
+		EventTypeSpec eventType[1];
+		eventType[0].eventClass = kEventClassMouse;
+		eventType[0].eventKind = kEventMouseMoved;
+		
+		InstallEventHandler(GetEventMonitorTarget(), mouseMovedHandlerUPP, 1, eventType, nil, &mouseHandler);
+	} else {
+		EventTypeSpec eventType[2];
+		eventType[0].eventClass = kEventClassMouse;
+		eventType[0].eventKind = kEventMouseMoved;
+		eventType[1].eventClass = kEventClassMouse;
+		eventType[1].eventKind = kEventMouseDragged;
+		
+		InstallEventHandler(GetEventMonitorTarget(), mouseMovedHandlerUPP, 2, eventType, nil, &mouseHandler);
+	}
+}
+
+- (void)_unregisterCarbonEventHandlers
+{
+	if (mouseHandler) {
+		RemoveEventHandler(mouseHandler);
+		DisposeEventHandlerUPP(mouseMovedHandlerUPP);
+	}
 }
 
 @end
