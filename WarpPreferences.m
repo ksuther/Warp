@@ -10,6 +10,7 @@
 #import "WarpDefaults.h"
 #import "SystemEvents.h"
 #import <SystemConfiguration/SystemConfiguration.h>
+#import "SRRecorderControl.h"
 
 #define SENDER_STATE ([sender state] == NSOnState)
 
@@ -67,6 +68,14 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	[self willChangeValueForKey:@"warpEnabled"];
 	warpEnabled = [self isWarpDaemonRunning];
 	[self didChangeValueForKey:@"warpEnabled"];
+	
+	short code = [[defaults valueForKey:@"PagerKeyCode"] shortValue];
+	
+	if (code != 0) {
+		unsigned int flags = [[defaults valueForKey:@"PagerModifierFlags"] unsignedIntValue];
+		
+		[_recorderControl setKeyCombo:SRMakeKeyCombo(code, flags)];
+	}
 	
 	//Check if WarpDaemon is in the login items
 	SystemEventsApplication *app = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
@@ -223,6 +232,20 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 			NSBeginAlertSheet(errorTitle, nil, nil, nil,  [[self mainView] window], nil, nil, nil, nil, errorMsg, errorReason);
 		}
 	}
+}
+
+#pragma mark -
+#pragma mark ShortcutRecorder Delegate
+
+- (void)shortcutRecorder:(SRRecorderControl *)aRecorder keyComboDidChange:(KeyCombo)newKeyCombo;
+{
+	[defaults setValue:[NSNumber numberWithShort:newKeyCombo.code] forKey:@"PagerKeyCode"];
+	[defaults setValue:[NSNumber numberWithUnsignedInt:SRCocoaToCarbonFlags(newKeyCombo.flags)] forKey:@"PagerModifierFlags"];
+}
+
+- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder isKeyCode:(signed short)keyCode andFlagsTaken:(unsigned int)flags reason:(NSString **)aReason;
+{
+	return NO;
 }
 
 #pragma mark -

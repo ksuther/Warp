@@ -156,9 +156,19 @@ void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) 
 	}
 }
 
+static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef inEvent, void *refCon)
+{
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"PagerHotKeyPressed" object:nil];
+	
+	return noErr;
+}
+
 @interface MainController (Private)
 - (void)_registerCarbonEventHandlers;
 - (void)_unregisterCarbonEventHandlers;
+- (void)_registerHotKeyEventHandlers;
+- (void)_registerHotKey;
+- (void)_unregisterHotKey;
 @end
 
 @implementation MainController
@@ -468,6 +478,7 @@ void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)note
 {
+	[self _registerHotKeyEventHandlers];
 	[self _registerCarbonEventHandlers];
 	
 	//Register for Spaces switch notifications - http://tonyarnold.com/entries/detecting-when-the-active-space-changes-under-leopard/
@@ -533,6 +544,7 @@ void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) 
 	_wraparound = [df boolForKey:@"Wraparound"];
 	
 	[self _registerCarbonEventHandlers];
+	[self _registerHotKey];
 }
 
 - (void)screenParametersChanged:(NSNotification *)note
@@ -748,6 +760,42 @@ void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) 
 	if (mouseHandler) {
 		RemoveEventHandler(mouseHandler);
 		DisposeEventHandlerUPP(mouseMovedHandlerUPP);
+	}
+}
+
+- (void)_registerHotKeyEventHandlers
+{
+	EventTypeSpec eventSpec[1] = {
+		{kEventClassKeyboard, kEventHotKeyPressed},
+	};
+	
+	InstallApplicationEventHandler(&hotKeyEventHandler, 1, eventSpec, NULL, &hotKeyHandlerRef);
+}
+
+- (void)_registerHotKey
+{
+	short code = [[NSUserDefaults standardUserDefaults] integerForKey:@"PagerKeyCode"];
+	unsigned int modifiers = [[NSUserDefaults standardUserDefaults] integerForKey:@"PagerModifierFlags"];
+	
+	if (code != 0 && (!hotKeyRef || _activeKeyCode != code || _activeModifiers != modifiers)) {
+		EventHotKeyID hotKeyID;
+		hotKeyID.signature = 'Page';
+		hotKeyID.id = (long)code;
+		
+		[self _unregisterHotKey];
+		
+		RegisterEventHotKey(code, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &hotKeyRef);
+		
+		_activeKeyCode = code;
+		_activeModifiers = modifiers;
+	}
+}
+
+- (void)_unregisterHotKey
+{
+	if (hotKeyRef) {
+		UnregisterEventHotKey(hotKeyRef);
+		hotKeyRef = nil;
 	}
 }
 

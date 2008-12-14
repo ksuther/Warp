@@ -10,6 +10,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 @interface PagerController : NSObject {
+	BOOL _pagerVisible;
 	NSPanel *_pagerPanel;
 	NSView *_layersView;
 	
@@ -17,5 +18,7 @@
 	
 	NSInteger _activeSpace;
 }
+
+- (void)toggleVisibility;
 
 @end

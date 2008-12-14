@@ -27,6 +27,14 @@
 		3743464A0D63ADCC00189144 /* WarpEdgeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 374346490D63ADCC00189144 /* WarpEdgeView.m */; };
 		374347280D63CC7000189144 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 374347270D63CC7000189144 /* QuartzCore.framework */; };
 		37434A610D64BEF600189144 /* ScreenSaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37434A600D64BEF600189144 /* ScreenSaver.framework */; };
+		374CCBCE0EF1EC6E00C1D359 /* CTGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC30EF1EC6E00C1D359 /* CTGradient.m */; };
+		374CCBCF0EF1EC6E00C1D359 /* SRCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC50EF1EC6E00C1D359 /* SRCommon.m */; };
+		374CCBD00EF1EC6E00C1D359 /* SRKeyCodeTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC70EF1EC6E00C1D359 /* SRKeyCodeTransformer.m */; };
+		374CCBD10EF1EC6E00C1D359 /* SRRecorderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC90EF1EC6E00C1D359 /* SRRecorderCell.m */; };
+		374CCBD20EF1EC6E00C1D359 /* SRRecorderControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBCB0EF1EC6E00C1D359 /* SRRecorderControl.m */; };
+		374CCBD30EF1EC6E00C1D359 /* SRValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBCD0EF1EC6E00C1D359 /* SRValidator.m */; };
+		374CCBD60EF1EC7D00C1D359 /* ShortcutRecorder.strings in Resources */ = {isa = PBXBuildFile; fileRef = 374CCBD40EF1EC7D00C1D359 /* ShortcutRecorder.strings */; };
+		374CCBF70EF1EEDE00C1D359 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F65A0CDA73C400A034FA /* Carbon.framework */; };
 		375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
 		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
 		375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */; };
@@ -113,6 +121,22 @@
 		37434AD30D6540DA00189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37434AD60D6541E900189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		37434AD70D6541EE00189144 /* German */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = German; path = German.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
+		374CCBC20EF1EC6E00C1D359 /* CTGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTGradient.h; path = ShortcutRecorder/Source/CTGradient.h; sourceTree = "<group>"; };
+		374CCBC30EF1EC6E00C1D359 /* CTGradient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CTGradient.m; path = ShortcutRecorder/Source/CTGradient.m; sourceTree = "<group>"; };
+		374CCBC40EF1EC6E00C1D359 /* SRCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRCommon.h; path = ShortcutRecorder/Source/SRCommon.h; sourceTree = "<group>"; };
+		374CCBC50EF1EC6E00C1D359 /* SRCommon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRCommon.m; path = ShortcutRecorder/Source/SRCommon.m; sourceTree = "<group>"; };
+		374CCBC60EF1EC6E00C1D359 /* SRKeyCodeTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRKeyCodeTransformer.h; path = ShortcutRecorder/Source/SRKeyCodeTransformer.h; sourceTree = "<group>"; };
+		374CCBC70EF1EC6E00C1D359 /* SRKeyCodeTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRKeyCodeTransformer.m; path = ShortcutRecorder/Source/SRKeyCodeTransformer.m; sourceTree = "<group>"; };
+		374CCBC80EF1EC6E00C1D359 /* SRRecorderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRRecorderCell.h; path = ShortcutRecorder/Source/SRRecorderCell.h; sourceTree = "<group>"; };
+		374CCBC90EF1EC6E00C1D359 /* SRRecorderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRRecorderCell.m; path = ShortcutRecorder/Source/SRRecorderCell.m; sourceTree = "<group>"; };
+		374CCBCA0EF1EC6E00C1D359 /* SRRecorderControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRRecorderControl.h; path = ShortcutRecorder/Source/SRRecorderControl.h; sourceTree = "<group>"; };
+		374CCBCB0EF1EC6E00C1D359 /* SRRecorderControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRRecorderControl.m; path = ShortcutRecorder/Source/SRRecorderControl.m; sourceTree = "<group>"; };
+		374CCBCC0EF1EC6E00C1D359 /* SRValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRValidator.h; path = ShortcutRecorder/Source/SRValidator.h; sourceTree = "<group>"; };
+		374CCBCD0EF1EC6E00C1D359 /* SRValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRValidator.m; path = ShortcutRecorder/Source/SRValidator.m; sourceTree = "<group>"; };
+		374CCBD50EF1EC7D00C1D359 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = ShortcutRecorder/English.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD70EF1EC8500C1D359 /* Dutch */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Dutch; path = ShortcutRecorder/Dutch.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD80EF1EC9100C1D359 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = German; path = ShortcutRecorder/German.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD90EF1EC9700C1D359 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = ShortcutRecorder/sv.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
@@ -147,6 +171,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				374CCBF70EF1EEDE00C1D359 /* Carbon.framework in Frameworks */,
 				3790F8FD0CDB05F100A034FA /* PreferencePanes.framework in Frameworks */,
 				3790FC190CDEF6F700A034FA /* ScriptingBridge.framework in Frameworks */,
 				375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */,
@@ -222,6 +247,7 @@
 			children = (
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				374CCBC10EF1EC4200C1D359 /* ShortcutRecorder */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
@@ -263,6 +289,26 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		374CCBC10EF1EC4200C1D359 /* ShortcutRecorder */ = {
+			isa = PBXGroup;
+			children = (
+				374CCBC20EF1EC6E00C1D359 /* CTGradient.h */,
+				374CCBC30EF1EC6E00C1D359 /* CTGradient.m */,
+				374CCBC40EF1EC6E00C1D359 /* SRCommon.h */,
+				374CCBC50EF1EC6E00C1D359 /* SRCommon.m */,
+				374CCBC60EF1EC6E00C1D359 /* SRKeyCodeTransformer.h */,
+				374CCBC70EF1EC6E00C1D359 /* SRKeyCodeTransformer.m */,
+				374CCBC80EF1EC6E00C1D359 /* SRRecorderCell.h */,
+				374CCBC90EF1EC6E00C1D359 /* SRRecorderCell.m */,
+				374CCBCA0EF1EC6E00C1D359 /* SRRecorderControl.h */,
+				374CCBCB0EF1EC6E00C1D359 /* SRRecorderControl.m */,
+				374CCBCC0EF1EC6E00C1D359 /* SRValidator.h */,
+				374CCBCD0EF1EC6E00C1D359 /* SRValidator.m */,
+				374CCBD40EF1EC7D00C1D359 /* ShortcutRecorder.strings */,
+			);
+			name = ShortcutRecorder;
 			sourceTree = "<group>";
 		};
 		37532A860ED718FC006805B3 /* Pager */ = {
@@ -345,6 +391,8 @@
 				German,
 				Italian,
 				zh_TW,
+				Dutch,
+				sv,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Warp */;
 			projectDirPath = "";
@@ -365,6 +413,7 @@
 				3790F9150CDB864E00A034FA /* WarpPreferences.xib in Resources */,
 				375166C00CE2C6C500B39CD3 /* Localizable.strings in Resources */,
 				371A1E7A0D1B6B2700266F70 /* Warp.icns in Resources */,
+				374CCBD60EF1EC7D00C1D359 /* ShortcutRecorder.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,6 +435,12 @@
 			files = (
 				3790F8F50CDB05CE00A034FA /* WarpPreferences.m in Sources */,
 				375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */,
+				374CCBCE0EF1EC6E00C1D359 /* CTGradient.m in Sources */,
+				374CCBCF0EF1EC6E00C1D359 /* SRCommon.m in Sources */,
+				374CCBD00EF1EC6E00C1D359 /* SRKeyCodeTransformer.m in Sources */,
+				374CCBD10EF1EC6E00C1D359 /* SRRecorderCell.m in Sources */,
+				374CCBD20EF1EC6E00C1D359 /* SRRecorderControl.m in Sources */,
+				374CCBD30EF1EC6E00C1D359 /* SRValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,6 +493,17 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 			);
 			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		374CCBD40EF1EC7D00C1D359 /* ShortcutRecorder.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				374CCBD50EF1EC7D00C1D359 /* English */,
+				374CCBD70EF1EC8500C1D359 /* Dutch */,
+				374CCBD80EF1EC9100C1D359 /* German */,
+				374CCBD90EF1EC9700C1D359 /* sv */,
+			);
+			name = ShortcutRecorder.strings;
 			sourceTree = "<group>";
 		};
 		375166BE0CE2C6C500B39CD3 /* Localizable.strings */ = {

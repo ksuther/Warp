@@ -11,10 +11,11 @@
 
 extern NSString *WarpBundleIdentifier;
 
-@class WarpDefaults;
+@class WarpDefaults, SRRecorderControl;
 
 @interface WarpPreferences : NSPreferencePane {
 	IBOutlet NSTextView *_aboutTextView;
+	IBOutlet SRRecorderControl *_recorderControl;
 	
 	BOOL warpEnabled, launchAtLogin;
 	WarpDefaults *defaults;

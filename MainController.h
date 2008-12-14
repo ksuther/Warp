@@ -32,6 +32,13 @@ enum {
 	EventHandlerRef mouseHandler;
 	EventHandlerUPP mouseMovedHandlerUPP;
 	
+	EventHandlerRef hotKeyHandlerRef;
+	EventHotKeyRef hotKeyRef;
+	
+	//The currently active hot key for toggling the pager
+	short _activeKeyCode;
+	unsigned int _activeModifiers;
+	
 	PagerController *_pagerController;
 }
 

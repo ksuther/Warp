@@ -31,11 +31,21 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 {
 	if ( (self = [super init]) ) {
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(spaceDidChange:) name:@"ActiveSpaceDidSwitchNotification" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hoyKeyPressed:) name:@"PagerHotKeyPressed" object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(screenParametersChanged:) name:NSApplicationDidChangeScreenParametersNotification object:nil];
 		
 		[self _createPager];
 		
-		[_pagerPanel makeKeyAndOrderFront:nil];
+		[_pagerPanel setAlphaValue:0.0];
+		[_pagerPanel orderFront:nil];
+		
+		_pagerVisible = [[NSUserDefaults standardUserDefaults] boolForKey:@"PagerVisible"];
+		
+		//Make the pager visible at launch if it was visible last time
+		if (_pagerVisible) {
+			_pagerVisible = NO;
+			[self toggleVisibility];
+		}
 	}
 	return self;
 }
@@ -58,6 +68,11 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[self _updateActiveSpace];
 }
 
+- (void)hoyKeyPressed:(NSNotification *)note
+{
+	[self toggleVisibility];
+}
+
 - (void)screenParametersChanged:(NSNotification *)note
 {
 	[self performSelector:@selector(updatePager) withObject:nil afterDelay:1.0];
@@ -73,6 +88,21 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([_pagerPanel frame]) forKey:@"PagerFrame"];
 	
 	[_frameLayer setNeedsDisplay];
+}
+
+- (void)toggleVisibility
+{
+	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+								_pagerPanel, NSViewAnimationTargetKey,
+								_pagerVisible ? NSViewAnimationFadeOutEffect : NSViewAnimationFadeInEffect, NSViewAnimationEffectKey, nil];
+	NSArray *animations = [NSArray arrayWithObject:dictionary];
+	NSViewAnimation *animation = [[[NSViewAnimation alloc] initWithViewAnimations:animations] autorelease];
+	
+	[animation startAnimation];
+	
+	_pagerVisible = !_pagerVisible;
+	
+	[[NSUserDefaults standardUserDefaults] setBool:_pagerVisible forKey:@"PagerVisible"];
 }
 
 - (void)updatePager
