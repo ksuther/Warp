@@ -165,7 +165,6 @@ void spacesChangedCallback(int data1, int data2, int data3, void *userParameter)
 	//The callback seems to get called 4 times every time the number of spaces changes
 	//This ensures only one notification gets fired
 	if (lastCols != currentCols || lastRows != currentRows) {
-		NSLog(@"post");
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"SpacesConfigurationDidChangeNotification" object:nil userInfo:nil];
 	}
 	
