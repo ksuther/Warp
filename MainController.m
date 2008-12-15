@@ -8,7 +8,7 @@
 
 #import "MainController.h"
 #import "WarpEdgeWindow.h"
-#import "CGSPrivate2.h"
+#import "CGSPrivate.h"
 #import "ScreenSaver.h"
 #import "PagerController.h"
 
@@ -154,6 +154,23 @@ void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) 
 		
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"ActiveSpaceDidSwitchNotification" object:nil userInfo:info];
 	}
+}
+
+void spacesChangedCallback(int data1, int data2, int data3, void *userParameter) {
+	static NSInteger lastCols;
+	static NSInteger lastRows;
+	NSInteger currentCols = [MainController numberOfSpacesColumns];
+	NSInteger currentRows = [MainController numberOfSpacesRows];
+	
+	//The callback seems to get called 4 times every time the number of spaces changes
+	//This ensures only one notification gets fired
+	if (lastCols != currentCols || lastRows != currentRows) {
+		NSLog(@"post");
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"SpacesConfigurationDidChangeNotification" object:nil userInfo:nil];
+	}
+	
+	lastCols = currentCols;
+	lastRows = currentRows;
 }
 
 static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef inEvent, void *refCon)
@@ -482,7 +499,9 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	[self _registerCarbonEventHandlers];
 	
 	//Register for Spaces switch notifications - http://tonyarnold.com/entries/detecting-when-the-active-space-changes-under-leopard/
-	CGSRegisterConnectionNotifyProc(_CGSDefaultConnection(), spacesSwitchCallback, 1401, (void *)self);
+	CGSRegisterConnectionNotifyProc(_CGSDefaultConnection(), spacesSwitchCallback, CGSWorkspaceChangedEvent, (void *)self);
+	CGSRegisterConnectionNotifyProc(_CGSDefaultConnection(), spacesChangedCallback, CGSWorkspaceConfigurationEnabledEvent, (void *)self);
+	CGSRegisterConnectionNotifyProc(_CGSDefaultConnection(), spacesChangedCallback, CGSWorkspaceConfigurationDisabledEvent, (void *)self);
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(terminate:) name:@"TerminateWarpNotification" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:@"WarpDefaultsChanged" object:nil];

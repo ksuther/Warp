@@ -153,6 +153,7 @@
 		3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloseButtonLayer.m; sourceTree = "<group>"; };
 		3759DD970EF5C9FD00A76FD0 /* FlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlippedView.h; sourceTree = "<group>"; };
 		3759DD980EF5C9FD00A76FD0 /* FlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlippedView.m; sourceTree = "<group>"; };
+		3759DE930EF6C8A500A76FD0 /* CGSPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGSPrivate.h; sourceTree = "<group>"; };
 		3790F6370CDA71C400A034FA /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		3790F6380CDA71C400A034FA /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		3790F65A0CDA73C400A034FA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -169,7 +170,6 @@
 		379D46C00ED79FA700751DB8 /* PagerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerView.h; sourceTree = "<group>"; };
 		379D46C10ED79FA700751DB8 /* PagerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerView.m; sourceTree = "<group>"; };
 		37B04B130D2AE86700380FB3 /* WarpRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpRange.h; sourceTree = "<group>"; };
-		37D0E3E30ED7109D0037F407 /* CGSPrivate2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGSPrivate2.h; sourceTree = "<group>"; };
 		37D0E3EB0ED7110F0037F407 /* PagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerController.h; sourceTree = "<group>"; };
 		37D0E3EC0ED7110F0037F407 /* PagerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerController.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -269,7 +269,7 @@
 			isa = PBXGroup;
 			children = (
 				37434A5F0D64BEEA00189144 /* ScreenSaver.h */,
-				37D0E3E30ED7109D0037F407 /* CGSPrivate2.h */,
+				3759DE930EF6C8A500A76FD0 /* CGSPrivate.h */,
 				37B04B130D2AE86700380FB3 /* WarpRange.h */,
 				32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,

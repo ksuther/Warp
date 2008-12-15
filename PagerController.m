@@ -11,20 +11,26 @@
 #import "PagerPanel.h"
 #import "PagerView.h"
 #import "MainController.h"
-#import "CGSPrivate2.h"
+#import "CGSPrivate.h"
 #import "CloseButtonLayer.h"
 #import "FlippedView.h"
 
 extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
+
+static const CGFloat PagerBorderGray = 0.2;
+static const CGFloat PagerBorderAlpha = 0.6;
 
 @interface NSApplication (ContextID)
 - (NSInteger)contextID;
 @end
 
 @interface PagerController (Private)
-- (BOOL)_isWarpWindow:(CGSWindowID)wid;
 - (void)_createPager;
+- (void)_updatePagerSize:(BOOL)animate;
+- (void)_createSpacesLayers;
 - (void)_updateActiveSpace;
+- (void)_savePagerDefaults;
+- (BOOL)_isWarpWindow:(CGSWindowID)wid;
 @end
 
 @implementation PagerController
@@ -33,8 +39,9 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 {
 	if ( (self = [super init]) ) {
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(spaceDidChange:) name:@"ActiveSpaceDidSwitchNotification" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePager) name:@"SpacesConfigurationDidChangeNotification" object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hoyKeyPressed:) name:@"PagerHotKeyPressed" object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(screenParametersChanged:) name:NSApplicationDidChangeScreenParametersNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePager) name:NSApplicationDidChangeScreenParametersNotification object:nil];
 		
 		[self _createPager];
 		
@@ -75,19 +82,16 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[self toggleVisibility];
 }
 
-- (void)screenParametersChanged:(NSNotification *)note
-{
-	[self performSelector:@selector(updatePager) withObject:nil afterDelay:1.0];
-}
-
 - (void)windowMoved:(NSNotification *)note
 {
-	[[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([_pagerPanel frame]) forKey:@"PagerFrame"];
+	[[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(_savePagerDefaults) object:nil];
+	[self performSelector:@selector(_savePagerDefaults) withObject:nil afterDelay:0.0];
 }
 
 - (void)windowResized:(NSNotification *)note
 {
-	[[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([_pagerPanel frame]) forKey:@"PagerFrame"];
+	[[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(_savePagerDefaults) object:nil];
+	[self performSelector:@selector(_savePagerDefaults) withObject:nil afterDelay:0.0];
 	
 	[_frameLayer setNeedsDisplay];
 }
@@ -123,6 +127,16 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 - (void)updatePager
 {
+	NSArray *layers = [NSArray arrayWithArray:[[_layersView layer] sublayers]];
+	
+	for (CALayer *layer in layers) {
+		[layer removeFromSuperlayer];
+	}
+	
+	[self _updatePagerSize:YES];
+	[self _createSpacesLayers];
+	[self _updateActiveSpace];
+	[_frameLayer setNeedsDisplay];
 }
 
 - (void)matrixClicked:(id)sender
@@ -166,15 +180,20 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		[gradient drawInBezierPath:glassPath angle:270];
 		[gradient release];*/
 		
+		NSBezierPath *borderPath = [NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(layer.bounds) xRadius:12 yRadius:12];
+		
+		[NSBezierPath setDefaultLineWidth:0.5];
+		
 		[[NSColor colorWithCalibratedWhite:0.0 alpha:0.9] set];
-		[[NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(layer.bounds) xRadius:12 yRadius:12] fill];
+		[borderPath fill];
+		
+		[[NSColor colorWithCalibratedWhite:PagerBorderGray alpha:PagerBorderAlpha] set];
+		[borderPath stroke];
 		
 		//Draw clear in each of the spaces
 		for (CALayer *layer in [[_layersView layer] sublayers]) {
 			CGRect frame = [layer convertRect:layer.frame toLayer:layer];
-			
 			frame.origin.x += 8;
-			frame.origin.y += 8;
 			
 			//Clear the area of each space
 			[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeClear];
@@ -252,90 +271,41 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 {
 	CGFloat ratio = (CGFloat)CGDisplayPixelsWide(kCGDirectMainDisplay) / CGDisplayPixelsHigh(kCGDirectMainDisplay);
 	NSSize pagerSize = NSMakeSize(320, 320 / ratio);
+	NSString *pagerOriginString = [[NSUserDefaults standardUserDefaults] stringForKey:@"PagerOrigin"];
+	NSPoint pagerOrigin = NSPointFromString(pagerOriginString);
 	
-	_pagerPanel = [[PagerPanel alloc] initWithContentRect:NSMakeRect(0, 0, pagerSize.width, pagerSize.height)
+	//Ensure the pager will be created with a sane size and width
+	if (!pagerOriginString || NSEqualPoints(pagerOrigin, NSZeroPoint)) {
+		pagerOrigin = NSMakePoint(100, 100);
+	}
+	
+	_pagerPanel = [[PagerPanel alloc] initWithContentRect:NSMakeRect(pagerOrigin.x, pagerOrigin.y, pagerSize.width, pagerSize.height)
 											 styleMask:NSUtilityWindowMask | NSNonactivatingPanelMask
 											   backing:NSBackingStoreBuffered defer:NO];
-	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowMoved:) name:NSWindowDidMoveNotification object:_pagerPanel];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowResized:) name:NSWindowDidResizeNotification object:_pagerPanel];
 	
 	NSView *contentView = [[[FlippedView alloc] initWithFrame:[_pagerPanel frame]] autorelease];
 	[contentView setWantsLayer:YES];
 	[_pagerPanel setContentView:contentView];
 	
-	NSString *savedFrameString = [[NSUserDefaults standardUserDefaults] stringForKey:@"PagerFrame"];
-	NSRect savedFrame = NSRectFromString(savedFrameString);
-	
-	if (savedFrameString && !NSEqualRects(savedFrame, NSZeroRect)) {
-		[_pagerPanel setFrame:savedFrame display:NO];
-	} else {
-		savedFrame = _pagerPanel.frame;
-	}
+	[self _updatePagerSize:NO];
 	
 	[_pagerPanel setBackgroundColor:[NSColor clearColor]];
 	[_pagerPanel setOpaque:NO];
-	[_pagerPanel setContentAspectRatio:pagerSize];
-	[_pagerPanel setMinSize:NSMakeSize(100, 100)];
-	[_pagerPanel setMaxSize:NSMakeSize(500, 500)];
 	[_pagerPanel setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
 	[_pagerPanel setLevel:NSStatusWindowLevel];
 	[_pagerPanel setDelegate:self];
 	
-	_layersView = [[PagerView alloc] initWithFrame:NSInsetRect([[_pagerPanel contentView] bounds], 8, 8)];
+	NSRect layersRect = NSInsetRect([[_pagerPanel contentView] bounds], 8, 8);
+	layersRect.size.width += 8;
+	layersRect.size.height += 8;
+	
+	_layersView = [[PagerView alloc] initWithFrame:layersRect];
 	[_layersView setWantsLayer:YES];
 	[_layersView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	[_layersView layer].layoutManager = [CAConstraintLayoutManager layoutManager];
 	[_layersView layer].zPosition = -1;
 	
 	[[_pagerPanel contentView] addSubview:_layersView];
-	
-	NSInteger cols = [MainController numberOfSpacesColumns], rows = [MainController numberOfSpacesRows];
-	NSSize layerSize = NSMakeSize(pagerSize.width - (cols + 1) * 4, pagerSize.height - (rows + 1) * 4);
-	
-	for (NSInteger i = 0; i < rows; i++) {
-		for (NSInteger j = 0; j < cols; j++) {
-			CALayer *layer = [CALayer layer];
-			
-			layer.name = [NSString stringWithFormat:@"%d.%d", i, j];
-			
-			CGColorRef color = CGColorCreateGenericGray(0.0, 0.4);
-			layer.backgroundColor = color;
-			layer.borderColor = CGColorGetConstantColor(kCGColorClear);
-			CGColorRelease(color);
-			
-			layer.delegate = self;
-			layer.cornerRadius = 5.0;
-			layer.borderWidth = 2.0;
-			layer.masksToBounds = YES;
-			layer.opacity = 1.0;
-			layer.zPosition = [MainController spacesIndexForRow:i + 1 column:j + 1] + 1;
-			layer.bounds = CGRectMake(0, 0, (layerSize.width / cols), (layerSize.height / rows));
-			
-			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintWidth relativeTo:@"superlayer" attribute:kCAConstraintWidth scale:(1.0 / cols) offset:-4]];
-			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintHeight relativeTo:@"superlayer" attribute:kCAConstraintHeight scale:(1.0 / rows) offset:-4]];
-			
-			if (j == 0) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX offset:0]];
-			}
-			
-			if (i == 0) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:@"superlayer" attribute:kCAConstraintMaxY offset:0]];
-			}
-			
-			if (i > 0) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:[NSString stringWithFormat:@"%d.%d", i - 1, j] attribute:kCAConstraintMinY offset:-8]];
-			}
-			
-			if (j > 0) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:[NSString stringWithFormat:@"%d.%d", i, j - 1] attribute:kCAConstraintMaxX offset:8]];
-			}
-			
-			[[_layersView layer] addSublayer:layer];
-			
-			[layer setNeedsDisplay];
-		}
-	}
 	
 	_frameLayer = [CALayer layer];
 	_frameLayer.opacity = 0.9;
@@ -353,7 +323,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	CALayer *resizeLayer = [CALayer layer];
 	
 	resizeLayer.autoresizingMask = kCALayerMinXMargin | kCALayerMaxYMargin;
-	resizeLayer.frame = CGRectMake(savedFrame.size.width - 12, 4, 8, 8);
+	resizeLayer.frame = CGRectMake(_pagerPanel.frame.size.width - 12, 4, 8, 8);
 	resizeLayer.contents = (id)resizeImage;
 	[[[_pagerPanel contentView] layer] addSublayer:resizeLayer];
 	
@@ -370,7 +340,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[[_pagerPanel contentView] addTrackingArea:area];
 	[area release];
 	
-	_closeLayer.frame = CGRectMake(0, savedFrame.size.height - 30, 30, 30);
+	_closeLayer.frame = CGRectMake(0, _pagerPanel.frame.size.height - 30, 30, 30);
 	_closeLayer.autoresizingMask = kCALayerMinYMargin;
 	_closeLayer.contents = (id)closeImage;
 	_closeLayer.opacity = 0.0;
@@ -382,7 +352,84 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	CGDataProviderRelease(provider);
 	CFRelease(url);
 	
+	[self _createSpacesLayers];
 	[self _updateActiveSpace];
+	
+	[self performSelector:@selector(_savePagerDefaults) withObject:nil afterDelay:0.0];
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowMoved:) name:NSWindowDidMoveNotification object:_pagerPanel];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowResized:) name:NSWindowDidResizeNotification object:_pagerPanel];
+}
+
+- (void)_updatePagerSize:(BOOL)animate;
+{
+	CGFloat ratio = (CGFloat)CGDisplayPixelsWide(kCGDirectMainDisplay) / CGDisplayPixelsHigh(kCGDirectMainDisplay);
+	NSInteger cols = [MainController numberOfSpacesColumns], rows = [MainController numberOfSpacesRows];
+	
+	CGFloat cellWidth = [[NSUserDefaults standardUserDefaults] floatForKey:@"PagerCellWidth"];
+	
+	if (cellWidth < 48) {
+		cellWidth = 48;
+	}
+	
+	NSRect currentFrame = _pagerPanel.frame;
+	CGFloat newWidth = ((cellWidth + 8) * cols) + 8;
+	CGFloat newHeight = (((cellWidth / ratio) + 8) * rows) + 8;
+	NSRect pagerFrame = NSMakeRect(currentFrame.origin.x, currentFrame.origin.y + (currentFrame.size.height - newHeight), newWidth, newHeight);
+	
+	[_pagerPanel setFrame:pagerFrame display:YES animate:animate];
+	[_pagerPanel setContentAspectRatio:NSMakeSize(pagerFrame.size.width, pagerFrame.size.height)];
+	[_pagerPanel setMinSize:NSMakeSize(cols * 56 + 8, cols * 56 + 8)];
+	[_pagerPanel setMaxSize:NSMakeSize(cols * 200 + 8, cols * 200 + 8)];
+}
+
+- (void)_createSpacesLayers
+{
+	CGFloat ratio = (CGFloat)CGDisplayPixelsWide(kCGDirectMainDisplay) / CGDisplayPixelsHigh(kCGDirectMainDisplay);
+	NSSize pagerSize = NSMakeSize(320, 320 / ratio);
+	NSInteger cols = [MainController numberOfSpacesColumns], rows = [MainController numberOfSpacesRows];
+	//NSSize layerSize = NSMakeSize(pagerSize.width - (cols + 1) * 8, pagerSize.height - (rows + 1) * 8);
+	CGColorRef backgroundColor = CGColorCreateGenericGray(0.0, 0.4);
+	CGColorRef borderColor = CGColorCreateGenericGray(PagerBorderGray, PagerBorderAlpha);
+	
+	for (NSInteger i = 0; i < rows; i++) {
+		for (NSInteger j = 0; j < cols; j++) {
+			CALayer *layer = [CALayer layer];
+			
+			layer.name = [NSString stringWithFormat:@"%d.%d", i, j];
+			layer.backgroundColor = backgroundColor;
+			layer.borderColor = borderColor;
+			layer.delegate = self;
+			layer.cornerRadius = 5.0;
+			layer.borderWidth = 1.0;
+			layer.masksToBounds = YES;
+			layer.opacity = 1.0;
+			layer.zPosition = [MainController spacesIndexForRow:i + 1 column:j + 1] + 1;
+			layer.bounds = CGRectMake(0, 0, (pagerSize.width / cols), (pagerSize.height / rows));
+			
+			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintWidth relativeTo:@"superlayer" attribute:kCAConstraintWidth scale:(1.0 / cols) offset:-8]];
+			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintHeight relativeTo:@"superlayer" attribute:kCAConstraintHeight scale:(1.0 / rows) offset:-8]];
+			
+			if (i == 0) {
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:@"superlayer" attribute:kCAConstraintMaxY offset:0]];
+			} else if (i < rows) {
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:[NSString stringWithFormat:@"%d.%d", i - 1, j] attribute:kCAConstraintMinY offset:-8]];
+			}
+			
+			if (j == 0) {
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX offset:0]];
+			} else if (j < cols) {
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:[NSString stringWithFormat:@"%d.%d", i, j - 1] attribute:kCAConstraintMaxX offset:8]];
+			}
+			
+			[[_layersView layer] addSublayer:layer];
+			
+			[layer setNeedsDisplay];
+		}
+	}
+	
+	CGColorRelease(backgroundColor);
+	CGColorRelease(borderColor);
 }
 
 - (void)_updateActiveSpace
@@ -391,9 +438,12 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	
 	CGSGetWorkspace(_CGSDefaultConnection(), &_activeSpace);
 	
+	CGColorRef borderColor = CGColorCreateGenericGray(PagerBorderGray, PagerBorderAlpha);
+	
 	for (CALayer *layer in [[_layersView layer] sublayers]) {
 		if (layer.zPosition == previousSpace) {
-			layer.borderColor = CGColorGetConstantColor(kCGColorClear);
+			layer.borderColor = borderColor;
+			layer.borderWidth = 1.0;
 			
 			CATransition *transition = [CATransition animation];
 			transition.duration = 0.5;
@@ -402,6 +452,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		} else if (layer.zPosition == _activeSpace) {
 			CGColorRef color = CGColorCreateGenericRGB(1.0, 0.0, 0.0, 1.0);
 			layer.borderColor = color;
+			layer.borderWidth = 2.0;
 			CGColorRelease(color);
 			
 			CATransition *transition = [CATransition animation];
@@ -411,7 +462,15 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 		}
 	}
 	
+	CGColorRelease(borderColor);
+	
 	[[_layersView layer] setNeedsLayout];
+}
+
+- (void)_savePagerDefaults
+{
+	[[NSUserDefaults standardUserDefaults] setObject:NSStringFromPoint([_pagerPanel frame].origin) forKey:@"PagerOrigin"];
+	[[NSUserDefaults standardUserDefaults] setFloat:((CALayer *)[[[_layersView layer] sublayers] lastObject]).bounds.size.width forKey:@"PagerCellWidth"];
 }
 
 - (BOOL)_isWarpWindow:(CGSWindowID)wid

@@ -9,7 +9,7 @@
 #import "WarpEdgeView.h"
 #import "WarpEdgeWindow.h"
 #import "MainController.h"
-#import "CGSPrivate2.h"
+#import "CGSPrivate.h"
 #import <QuartzCore/QuartzCore.h>
 
 extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
