@@ -3,7 +3,7 @@
 # DMG creation script for Warp
 #
 
-VERSION="1.2b1"
+VERSION=`defaults read /Users/kent/Programming/Warp/Info CFBundleVersion`
 NAME="Warp $VERSION"
 FINAL_NAME="Warp_$VERSION"
 

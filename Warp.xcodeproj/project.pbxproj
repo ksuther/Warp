@@ -42,7 +42,6 @@
 		3759DCD10EF5793D00A76FD0 /* resize_corner.png in Resources */ = {isa = PBXBuildFile; fileRef = 3759DCD00EF5793D00A76FD0 /* resize_corner.png */; };
 		3759DD1B0EF5824400A76FD0 /* closebox.png in Resources */ = {isa = PBXBuildFile; fileRef = 3759DD1A0EF5824400A76FD0 /* closebox.png */; };
 		3759DD4C0EF5C41C00A76FD0 /* CloseButtonLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */; };
-		3759DD990EF5C9FD00A76FD0 /* FlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3759DD980EF5C9FD00A76FD0 /* FlippedView.m */; };
 		3790F6390CDA71C400A034FA /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3790F6380CDA71C400A034FA /* MainController.m */; };
 		3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F65A0CDA73C400A034FA /* Carbon.framework */; };
 		3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F76A0CDA804300A034FA /* ApplicationServices.framework */; };
@@ -151,8 +150,6 @@
 		3759DD1A0EF5824400A76FD0 /* closebox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = closebox.png; sourceTree = "<group>"; };
 		3759DD4A0EF5C41C00A76FD0 /* CloseButtonLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloseButtonLayer.h; sourceTree = "<group>"; };
 		3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloseButtonLayer.m; sourceTree = "<group>"; };
-		3759DD970EF5C9FD00A76FD0 /* FlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlippedView.h; sourceTree = "<group>"; };
-		3759DD980EF5C9FD00A76FD0 /* FlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlippedView.m; sourceTree = "<group>"; };
 		3759DE930EF6C8A500A76FD0 /* CGSPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGSPrivate.h; sourceTree = "<group>"; };
 		3790F6370CDA71C400A034FA /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		3790F6380CDA71C400A034FA /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
@@ -332,8 +329,6 @@
 				37532A880ED71904006805B3 /* PagerPanel.m */,
 				379D46C00ED79FA700751DB8 /* PagerView.h */,
 				379D46C10ED79FA700751DB8 /* PagerView.m */,
-				3759DD970EF5C9FD00A76FD0 /* FlippedView.h */,
-				3759DD980EF5C9FD00A76FD0 /* FlippedView.m */,
 				3759DD4A0EF5C41C00A76FD0 /* CloseButtonLayer.h */,
 				3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */,
 			);
@@ -474,7 +469,6 @@
 				37532A890ED71904006805B3 /* PagerPanel.m in Sources */,
 				379D46C20ED79FA700751DB8 /* PagerView.m in Sources */,
 				3759DD4C0EF5C41C00A76FD0 /* CloseButtonLayer.m in Sources */,
-				3759DD990EF5C9FD00A76FD0 /* FlippedView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -32,6 +32,7 @@
 - (void)mouseExited:(NSEvent *)event
 {
 	[_closeTimer invalidate];
+	_closeTimer = nil;
 	
 	self.opacity = 0.0;
 }

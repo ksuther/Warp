@@ -13,7 +13,6 @@
 #import "MainController.h"
 #import "CGSPrivate.h"
 #import "CloseButtonLayer.h"
-#import "FlippedView.h"
 
 extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
 
@@ -29,6 +28,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 - (void)_updatePagerSize:(BOOL)animate;
 - (void)_createSpacesLayers;
 - (void)_updateActiveSpace;
+- (void)_resetTrackingArea;
 - (void)_savePagerDefaults;
 - (BOOL)_isWarpWindow:(CGSWindowID)wid;
 @end
@@ -93,6 +93,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	[[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(_savePagerDefaults) object:nil];
 	[self performSelector:@selector(_savePagerDefaults) withObject:nil afterDelay:0.0];
 	
+	[self _resetTrackingArea];
 	[_frameLayer setNeedsDisplay];
 }
 
@@ -283,7 +284,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 											 styleMask:NSUtilityWindowMask | NSNonactivatingPanelMask
 											   backing:NSBackingStoreBuffered defer:NO];
 	
-	NSView *contentView = [[[FlippedView alloc] initWithFrame:[_pagerPanel frame]] autorelease];
+	NSView *contentView = [[[NSView alloc] initWithFrame:[_pagerPanel frame]] autorelease];
 	[contentView setWantsLayer:YES];
 	[_pagerPanel setContentView:contentView];
 	
@@ -293,9 +294,11 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	[_pagerPanel setOpaque:NO];
 	[_pagerPanel setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
 	[_pagerPanel setLevel:NSStatusWindowLevel];
+	
 	[_pagerPanel setDelegate:self];
 	
 	NSRect layersRect = NSInsetRect([[_pagerPanel contentView] bounds], 8, 8);
+	layersRect.origin.y -= 8;
 	layersRect.size.width += 8;
 	layersRect.size.height += 8;
 	
@@ -334,12 +337,8 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("closebox"), CFSTR("png"), nil);
 	provider = CGDataProviderCreateWithURL(url);
 	CGImageRef closeImage = CGImageCreateWithPNGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
+	
 	_closeLayer = [CloseButtonLayer layer];
-	
-	NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:NSMakeRect(5, 5, 20, 20) options:NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways owner:_closeLayer userInfo:nil];
-	[[_pagerPanel contentView] addTrackingArea:area];
-	[area release];
-	
 	_closeLayer.frame = CGRectMake(0, _pagerPanel.frame.size.height - 30, 30, 30);
 	_closeLayer.autoresizingMask = kCALayerMinYMargin;
 	_closeLayer.contents = (id)closeImage;
@@ -354,6 +353,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	
 	[self _createSpacesLayers];
 	[self _updateActiveSpace];
+	[self _resetTrackingArea];
 	
 	[self performSelector:@selector(_savePagerDefaults) withObject:nil afterDelay:0.0];
 	
@@ -466,6 +466,17 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	CGColorRelease(borderColor);
 	
 	[[_layersView layer] setNeedsLayout];
+}
+
+- (void)_resetTrackingArea
+{
+	if (_closeTrackingArea) {
+		[[_pagerPanel contentView] removeTrackingArea:_closeTrackingArea];
+		[_closeTrackingArea release];
+	}
+	
+	_closeTrackingArea = [[NSTrackingArea alloc] initWithRect:[[_pagerPanel contentView] bounds] options:NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways owner:_closeLayer userInfo:nil];
+	[[_pagerPanel contentView] addTrackingArea:_closeTrackingArea];
 }
 
 - (void)_savePagerDefaults
