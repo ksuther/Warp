@@ -279,7 +279,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 		pagerOrigin = NSMakePoint(50, CGDisplayPixelsHigh(kCGDirectMainDisplay) - pagerSize.height - 50);
 	}
 	
-	_pagerPanel = [[PagerPanel alloc] initWithContentRect:NSMakeRect(pagerOrigin.x, pagerOrigin.y, pagerSize.width, pagerSize.height)
+	_pagerPanel = [[PagerPanel alloc] initWithContentRect:NSMakeRect(pagerOrigin.x, pagerOrigin.y, 0, 0)
 											 styleMask:NSUtilityWindowMask | NSNonactivatingPanelMask
 											   backing:NSBackingStoreBuffered defer:NO];
 	
@@ -375,7 +375,8 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	NSRect currentFrame = _pagerPanel.frame;
 	CGFloat newWidth = ((cellWidth + 8) * cols) + 8;
 	CGFloat newHeight = (((cellWidth / ratio) + 8) * rows) + 8;
-	NSRect pagerFrame = NSMakeRect(currentFrame.origin.x, currentFrame.origin.y + (currentFrame.size.height - newHeight), newWidth, newHeight);
+	CGFloat heightAdjust = (currentFrame.size.height > 0) ? (currentFrame.size.height - newHeight) : 0;
+	NSRect pagerFrame = NSMakeRect(currentFrame.origin.x, currentFrame.origin.y + heightAdjust, newWidth, newHeight);
 	
 	[_pagerPanel setFrame:pagerFrame display:YES animate:animate];
 	[_pagerPanel setContentAspectRatio:NSMakeSize(pagerFrame.size.width, pagerFrame.size.height)];

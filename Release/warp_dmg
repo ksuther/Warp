@@ -3,7 +3,7 @@
 # DMG creation script for Warp
 #
 
-VERSION="1.1.1"
+VERSION="1.2b1"
 NAME="Warp $VERSION"
 FINAL_NAME="Warp_$VERSION"
 
