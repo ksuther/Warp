@@ -13,7 +13,9 @@
 	NSPoint _initialLocation;
 	NSPoint _initialLocationOnScreen;
 	NSRect _initialFrame;
-	BOOL _resizing;
+	BOOL _resizing, _dragged;
+	
+	CALayer *_downLayer;
 }
 
 @end

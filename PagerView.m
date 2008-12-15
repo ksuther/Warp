@@ -16,8 +16,7 @@
 {
 	_dragged = YES;
 	
-	//Forward drag events to the window
-	[[self window] mouseDragged:event];
+	[super mouseDragged:event];
 }
 
 - (void)mouseUp:(NSEvent *)event
@@ -31,6 +30,8 @@
 	}
 	
 	_dragged = NO;
+	
+	[super mouseUp:event];
 }
 
 - (void)viewDidEndLiveResize

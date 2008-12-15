@@ -39,6 +39,10 @@
 		375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */; };
 		375169D00CE39CDA00B39CD3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */; };
 		37532A890ED71904006805B3 /* PagerPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 37532A880ED71904006805B3 /* PagerPanel.m */; };
+		3759DCD10EF5793D00A76FD0 /* resize_corner.png in Resources */ = {isa = PBXBuildFile; fileRef = 3759DCD00EF5793D00A76FD0 /* resize_corner.png */; };
+		3759DD1B0EF5824400A76FD0 /* closebox.png in Resources */ = {isa = PBXBuildFile; fileRef = 3759DD1A0EF5824400A76FD0 /* closebox.png */; };
+		3759DD4C0EF5C41C00A76FD0 /* CloseButtonLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */; };
+		3759DD990EF5C9FD00A76FD0 /* FlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3759DD980EF5C9FD00A76FD0 /* FlippedView.m */; };
 		3790F6390CDA71C400A034FA /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3790F6380CDA71C400A034FA /* MainController.m */; };
 		3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F65A0CDA73C400A034FA /* Carbon.framework */; };
 		3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790F76A0CDA804300A034FA /* ApplicationServices.framework */; };
@@ -143,6 +147,12 @@
 		375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		37532A870ED71904006805B3 /* PagerPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerPanel.h; sourceTree = "<group>"; };
 		37532A880ED71904006805B3 /* PagerPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerPanel.m; sourceTree = "<group>"; };
+		3759DCD00EF5793D00A76FD0 /* resize_corner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = resize_corner.png; sourceTree = "<group>"; };
+		3759DD1A0EF5824400A76FD0 /* closebox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = closebox.png; sourceTree = "<group>"; };
+		3759DD4A0EF5C41C00A76FD0 /* CloseButtonLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloseButtonLayer.h; sourceTree = "<group>"; };
+		3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CloseButtonLayer.m; sourceTree = "<group>"; };
+		3759DD970EF5C9FD00A76FD0 /* FlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlippedView.h; sourceTree = "<group>"; };
+		3759DD980EF5C9FD00A76FD0 /* FlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlippedView.m; sourceTree = "<group>"; };
 		3790F6370CDA71C400A034FA /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		3790F6380CDA71C400A034FA /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		3790F65A0CDA73C400A034FA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -274,6 +284,8 @@
 				3790F8C10CDB042200A034FA /* PrefPane-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				375166BE0CE2C6C500B39CD3 /* Localizable.strings */,
+				3759DCD00EF5793D00A76FD0 /* resize_corner.png */,
+				3759DD1A0EF5824400A76FD0 /* closebox.png */,
 				371A1E790D1B6B2700266F70 /* Warp.icns */,
 				3790F8E70CDB057E00A034FA /* Warp.searchTerms */,
 				3790F9130CDB864E00A034FA /* WarpPreferences.xib */,
@@ -320,6 +332,10 @@
 				37532A880ED71904006805B3 /* PagerPanel.m */,
 				379D46C00ED79FA700751DB8 /* PagerView.h */,
 				379D46C10ED79FA700751DB8 /* PagerView.m */,
+				3759DD970EF5C9FD00A76FD0 /* FlippedView.h */,
+				3759DD980EF5C9FD00A76FD0 /* FlippedView.m */,
+				3759DD4A0EF5C41C00A76FD0 /* CloseButtonLayer.h */,
+				3759DD4B0EF5C41C00A76FD0 /* CloseButtonLayer.m */,
 			);
 			name = Pager;
 			sourceTree = "<group>";
@@ -423,6 +439,8 @@
 			files = (
 				8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */,
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				3759DCD10EF5793D00A76FD0 /* resize_corner.png in Resources */,
+				3759DD1B0EF5824400A76FD0 /* closebox.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,6 +473,8 @@
 				37D0E3ED0ED7110F0037F407 /* PagerController.m in Sources */,
 				37532A890ED71904006805B3 /* PagerPanel.m in Sources */,
 				379D46C20ED79FA700751DB8 /* PagerView.m in Sources */,
+				3759DD4C0EF5C41C00A76FD0 /* CloseButtonLayer.m in Sources */,
+				3759DD990EF5C9FD00A76FD0 /* FlippedView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,6 +12,8 @@
 #import "PagerView.h"
 #import "MainController.h"
 #import "CGSPrivate2.h"
+#import "CloseButtonLayer.h"
+#import "FlippedView.h"
 
 extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
 
@@ -90,6 +92,20 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[_frameLayer setNeedsDisplay];
 }
 
+- (void)hidePager
+{
+	if (_pagerVisible) {
+		[self toggleVisibility];
+	}
+}
+
+- (void)showPager
+{
+	if (!_pagerVisible) {
+		[self toggleVisibility];
+	}
+}
+
 - (void)toggleVisibility
 {
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -131,23 +147,39 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[NSGraphicsContext setCurrentContext:graphicsContext];
 	
 	if (layer.zPosition == 0) {
+		/*NSBezierPath *framePath = [NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(layer.bounds) xRadius:12 yRadius:12];
+		
 		[NSBezierPath setDefaultLineWidth:5.0];
 		
 		[[NSColor colorWithCalibratedWhite:0.0 alpha:1.0] set];
+		[framePath fill];
+		
+		//Draw the glassy gradient
+		NSRect glassRect = NSRectFromCGRect(CGRectInset(layer.bounds, -5, -5));
+		glassRect.origin.y += glassRect.size.height * .65;
+		glassRect.size.height *= .35;
+		
+		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:[NSColor colorWithCalibratedWhite:0.70 alpha:1.0] endingColor:[NSColor blackColor]];
+		NSBezierPath *glassPath = [NSBezierPath bezierPathWithRoundedRect:glassRect xRadius:20 yRadius:20];
+		
+		[framePath setClip];
+		[gradient drawInBezierPath:glassPath angle:270];
+		[gradient release];*/
+		
+		[[NSColor colorWithCalibratedWhite:0.0 alpha:0.9] set];
 		[[NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(layer.bounds) xRadius:12 yRadius:12] fill];
 		
 		//Draw clear in each of the spaces
 		for (CALayer *layer in [[_layersView layer] sublayers]) {
-			CGRect frame = [layer convertRect:CGRectInset(layer.frame, -2, -2) toLayer:layer];
+			CGRect frame = [layer convertRect:layer.frame toLayer:layer];
 			
 			frame.origin.x += 8;
 			frame.origin.y += 8;
 			
-			//Clear the rect
-			CGContextClearRect(ctx, frame);
-			
+			//Clear the area of each space
+			[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeClear];
 			[[NSColor colorWithCalibratedWhite:0.0 alpha:1.0] set];
-			[[NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(frame) xRadius:6 yRadius:6] stroke];
+			[[NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(frame) xRadius:6 yRadius:6] fill];
 		}
 	} else {
 		NSInteger workspace = layer.zPosition;
@@ -214,19 +246,6 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 }
 
 #pragma mark -
-#pragma mark NSTrackingArea Callbacks
-
-- (void)mouseEntered:(NSEvent *)event
-{
-	//Show the close button
-}
-
-- (void)mouseExited:(NSEvent *)event
-{
-	//Hide the close button
-}
-
-#pragma mark -
 #pragma mark Private
 
 - (void)_createPager
@@ -241,7 +260,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowMoved:) name:NSWindowDidMoveNotification object:_pagerPanel];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowResized:) name:NSWindowDidResizeNotification object:_pagerPanel];
 	
-	NSView *contentView = [[[NSView alloc] initWithFrame:[_pagerPanel frame]] autorelease];
+	NSView *contentView = [[[FlippedView alloc] initWithFrame:[_pagerPanel frame]] autorelease];
 	[contentView setWantsLayer:YES];
 	[_pagerPanel setContentView:contentView];
 	
@@ -250,6 +269,8 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	
 	if (savedFrameString && !NSEqualRects(savedFrame, NSZeroRect)) {
 		[_pagerPanel setFrame:savedFrame display:NO];
+	} else {
+		savedFrame = _pagerPanel.frame;
 	}
 	
 	[_pagerPanel setBackgroundColor:[NSColor clearColor]];
@@ -269,12 +290,8 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	
 	[[_pagerPanel contentView] addSubview:_layersView];
 	
-	NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:NSMakeRect(0, [[_pagerPanel contentView] bounds].size.height - 15, 15, 15) options:NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways owner:self userInfo:nil];
-	[[_pagerPanel contentView] addTrackingArea:area];
-	
 	NSInteger cols = [MainController numberOfSpacesColumns], rows = [MainController numberOfSpacesRows];
-	//NSInteger cols = 3, rows = 3;
-	NSSize layerSize = NSMakeSize(pagerSize.width - (cols + 1) * 3, pagerSize.height - (rows + 1) * 3);
+	NSSize layerSize = NSMakeSize(pagerSize.width - (cols + 1) * 4, pagerSize.height - (rows + 1) * 4);
 	
 	for (NSInteger i = 0; i < rows; i++) {
 		for (NSInteger j = 0; j < cols; j++) {
@@ -282,7 +299,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 			
 			layer.name = [NSString stringWithFormat:@"%d.%d", i, j];
 			
-			CGColorRef color = CGColorCreateGenericGray(0.0, 0.25);
+			CGColorRef color = CGColorCreateGenericGray(0.0, 0.4);
 			layer.backgroundColor = color;
 			layer.borderColor = CGColorGetConstantColor(kCGColorClear);
 			CGColorRelease(color);
@@ -295,8 +312,8 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 			layer.zPosition = [MainController spacesIndexForRow:i + 1 column:j + 1] + 1;
 			layer.bounds = CGRectMake(0, 0, (layerSize.width / cols), (layerSize.height / rows));
 			
-			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintWidth relativeTo:@"superlayer" attribute:kCAConstraintWidth scale:(1.0 / cols) offset:-3]];
-			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintHeight relativeTo:@"superlayer" attribute:kCAConstraintHeight scale:(1.0 / rows) offset:-3]];
+			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintWidth relativeTo:@"superlayer" attribute:kCAConstraintWidth scale:(1.0 / cols) offset:-4]];
+			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintHeight relativeTo:@"superlayer" attribute:kCAConstraintHeight scale:(1.0 / rows) offset:-4]];
 			
 			if (j == 0) {
 				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX offset:0]];
@@ -307,11 +324,11 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 			}
 			
 			if (i > 0) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:[NSString stringWithFormat:@"%d.%d", i - 1, j] attribute:kCAConstraintMinY offset:-5]];
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:[NSString stringWithFormat:@"%d.%d", i - 1, j] attribute:kCAConstraintMinY offset:-8]];
 			}
 			
 			if (j > 0) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:[NSString stringWithFormat:@"%d.%d", i, j - 1] attribute:kCAConstraintMaxX offset:5]];
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:[NSString stringWithFormat:@"%d.%d", i, j - 1] attribute:kCAConstraintMaxX offset:8]];
 			}
 			
 			[[_layersView layer] addSublayer:layer];
@@ -321,13 +338,49 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	}
 	
 	_frameLayer = [CALayer layer];
-	_frameLayer.opacity = 0.85;
+	_frameLayer.opacity = 0.9;
 	_frameLayer.delegate = self;
 	_frameLayer.frame = [[_pagerPanel contentView] layer].frame;
 	_frameLayer.contentsGravity = kCAGravityResize;
 	_frameLayer.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
 	[_frameLayer setNeedsDisplay];
 	[[[_pagerPanel contentView] layer] addSublayer:_frameLayer];
+	
+	//Add the corner resize indicator
+	CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("resize_corner"), CFSTR("png"), nil);
+	CGDataProviderRef provider = CGDataProviderCreateWithURL(url);
+	CGImageRef resizeImage = CGImageCreateWithPNGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
+	CALayer *resizeLayer = [CALayer layer];
+	
+	resizeLayer.autoresizingMask = kCALayerMinXMargin | kCALayerMaxYMargin;
+	resizeLayer.frame = CGRectMake(savedFrame.size.width - 12, 4, 8, 8);
+	resizeLayer.contents = (id)resizeImage;
+	[[[_pagerPanel contentView] layer] addSublayer:resizeLayer];
+	
+	CGImageRelease(resizeImage);
+	CGDataProviderRelease(provider);
+	CFRelease(url);
+	
+	url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("closebox"), CFSTR("png"), nil);
+	provider = CGDataProviderCreateWithURL(url);
+	CGImageRef closeImage = CGImageCreateWithPNGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
+	_closeLayer = [CloseButtonLayer layer];
+	
+	NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:NSMakeRect(5, 5, 20, 20) options:NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways owner:_closeLayer userInfo:nil];
+	[[_pagerPanel contentView] addTrackingArea:area];
+	[area release];
+	
+	_closeLayer.frame = CGRectMake(0, savedFrame.size.height - 30, 30, 30);
+	_closeLayer.autoresizingMask = kCALayerMinYMargin;
+	_closeLayer.contents = (id)closeImage;
+	_closeLayer.opacity = 0.0;
+	_closeLayer.target = self;
+	_closeLayer.action = @selector(hidePager);
+	[[[_pagerPanel contentView] layer] addSublayer:_closeLayer];
+	
+	CGImageRelease(closeImage);
+	CGDataProviderRelease(provider);
+	CFRelease(url);
 	
 	[self _updateActiveSpace];
 }

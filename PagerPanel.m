@@ -7,6 +7,9 @@
 //
 
 #import "PagerPanel.h"
+#import "CloseButtonLayer.h"
+
+static const NSInteger PagerResizeCornerSize = 10;
 
 @implementation PagerPanel
 
@@ -26,7 +29,24 @@
 	_initialLocationOnScreen = [self convertBaseToScreen:[event locationInWindow]];
 	_initialFrame = [self frame];
 	
-	_resizing = (_initialLocation.x >= _initialFrame.size.width - 20 && _initialLocation.y <= 20);
+	_resizing = (_initialLocation.x >= _initialFrame.size.width - PagerResizeCornerSize && _initialLocation.y <= PagerResizeCornerSize);
+	
+	_downLayer = [[[self contentView] layer] hitTest:NSPointToCGPoint([event locationInWindow])];
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+	if (_resizing) {
+		[[[self contentView] subviews] makeObjectsPerformSelector:@selector(viewDidEndLiveResize)];
+	} else if (!_dragged) {
+		CALayer *layer = [[[self contentView] layer] hitTest:NSPointToCGPoint([event locationInWindow])];
+		
+		if (layer == _downLayer && [layer isKindOfClass:[CloseButtonLayer class]] && [(CloseButtonLayer *)layer target] && [(CloseButtonLayer *)layer action]) {
+			[[(CloseButtonLayer *)layer target] performSelector:[(CloseButtonLayer *)layer action]];
+		}
+	}
+	
+	_dragged = NO;
 }
 
 - (void)mouseDragged:(NSEvent *)event
@@ -34,6 +54,8 @@
 	NSPoint currentLocation, newOrigin;
 	NSRect screenFrame = [[NSScreen mainScreen] frame];
 	NSRect frame = [self frame];
+	
+	_dragged = YES;
 	
 	//from http://www.cocoadev.com/index.pl?BorderlessWindow
 	if (_resizing) {
@@ -80,13 +102,6 @@
 		}
 		
 		[self setFrameOrigin:newOrigin];
-	}
-}
-
-- (void)mouseUp:(NSEvent *)event
-{
-	if (_resizing) {
-		[[[self contentView] subviews] makeObjectsPerformSelector:@selector(viewDidEndLiveResize)];
 	}
 }
 

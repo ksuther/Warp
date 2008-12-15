@@ -9,16 +9,22 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 
+@class CloseButtonLayer;
+
 @interface PagerController : NSObject {
 	BOOL _pagerVisible;
 	NSPanel *_pagerPanel;
 	NSView *_layersView;
 	
-	CALayer *_closeLayer, *_frameLayer;
+	CALayer *_frameLayer;
+	CloseButtonLayer *_closeLayer;
+	NSTrackingArea *_closeTrackingArea;
 	
 	NSInteger _activeSpace;
 }
 
+- (void)hidePager;
+- (void)showPager;
 - (void)toggleVisibility;
 
 @end
