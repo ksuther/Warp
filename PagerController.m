@@ -276,7 +276,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	
 	//Ensure the pager will be created with a sane size and width
 	if (!pagerOriginString || NSEqualPoints(pagerOrigin, NSZeroPoint)) {
-		pagerOrigin = NSMakePoint(100, 100);
+		pagerOrigin = NSMakePoint(50, CGDisplayPixelsHigh(kCGDirectMainDisplay) - pagerSize.height - 50);
 	}
 	
 	_pagerPanel = [[PagerPanel alloc] initWithContentRect:NSMakeRect(pagerOrigin.x, pagerOrigin.y, pagerSize.width, pagerSize.height)

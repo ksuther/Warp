@@ -72,7 +72,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	short code = [[defaults valueForKey:@"PagerKeyCode"] shortValue];
 	
 	if (code != 0) {
-		unsigned int flags = [[defaults valueForKey:@"PagerModifierFlags"] unsignedIntValue];
+		unsigned int flags = SRCarbonToCocoaFlags([[defaults valueForKey:@"PagerModifierFlags"] unsignedIntValue]);
 		
 		[_recorderControl setKeyCombo:SRMakeKeyCombo(code, flags)];
 	}

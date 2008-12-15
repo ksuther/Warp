@@ -17,7 +17,8 @@
 		if ([[NSUserDefaults standardUserDefaults] persistentDomainForName:WarpBundleIdentifier] == nil) {
 			NSDictionary *defaultSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithDouble:0.75], @"Delay",
 																					[NSNumber numberWithBool:NO], @"WarpMouse",
-																					[NSNumber numberWithBool:YES], @"CheckForUpdates", nil];
+																					[NSNumber numberWithBool:YES], @"CheckForUpdates",
+																					[NSNumber numberWithInt:125], @"PagerCellWidth", nil];
 			
 			[[NSUserDefaults standardUserDefaults] setPersistentDomain:defaultSettings forName:WarpBundleIdentifier];
 		}
