@@ -488,6 +488,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 - (void)dealloc
 {
 	[_pagerController release];
+	[_cachedVersion release];
 	
 	[super dealloc];
 }
@@ -503,6 +504,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	CGSRegisterConnectionNotifyProc(_CGSDefaultConnection(), spacesChangedCallback, CGSWorkspaceConfigurationDisabledEvent, (void *)self);
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(terminate:) name:@"TerminateWarpNotification" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(versionRequested:) name:@"WarpVersionRequest" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(defaultsChanged:) name:@"WarpDefaultsChanged" object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(screenParametersChanged:) name:NSApplicationDidChangeScreenParametersNotification object:nil];
 	
@@ -511,6 +513,8 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(timeMachineNotification:) name:@"com.apple.backup.BackupTargetActivatedNotification" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(timeMachineNotification:) name:@"com.apple.backup.BackupDismissedNotification" object:nil];
+	
+	_cachedVersion = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] copy];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)note
@@ -525,6 +529,11 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 - (void)timeMachineNotification:(NSNotification *)note
 {
 	_timeMachineActive = [[note name] isEqualToString:@"com.apple.backup.BackupTargetActivatedNotification"];
+}
+
+- (void)versionRequested:(NSNotification *)note
+{
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"WarpVersionResponse" object:_cachedVersion];
 }
 
 - (void)defaultsChanged:(NSNotification *)note

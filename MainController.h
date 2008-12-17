@@ -40,6 +40,8 @@ enum {
 	unsigned int _activeModifiers;
 	
 	PagerController *_pagerController;
+	
+	NSString *_cachedVersion;
 }
 
 + (NSInteger)numberOfSpacesRows;

@@ -60,6 +60,11 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceNotificationReceived:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
 	[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(workspaceNotificationReceived:) name:NSWorkspaceDidTerminateApplicationNotification object:nil];
 	
+	//Ensure the running daemon matches the version of the prefpane
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(versionResponse:) name:@"WarpVersionResponse" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"WarpVersionRequest" object:nil];
+	[self performSelector:@selector(versionRequestTimeout) withObject:nil afterDelay:2.0];
+	
 	//Set about string
 	NSDictionary *linkAttributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSURL URLWithString:@"http://www.ksuther.com/warp/"], NSLinkAttributeName, [NSCursor pointingHandCursor], NSCursorAttributeName, nil];
 	[[_aboutTextView textStorage] addAttributes:linkAttributes range:NSMakeRange(0, [[_aboutTextView textStorage] length])];
@@ -117,9 +122,39 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	[[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self name:nil object:nil];
 }
 
+- (NSString *)CFBundleVersion
+{
+	NSString *plistPath = [[[self bundle] bundlePath] stringByAppendingPathComponent:@"Contents/Info.plist"];
+	
+	return [[NSDictionary dictionaryWithContentsOfFile:plistPath] objectForKey:@"CFBundleVersion"];
+}
+
 - (NSString *)versionString
 {
-	return [NSString stringWithFormat:@"%@ -", [[self bundle] objectForInfoDictionaryKey:@"CFBundleVersion"]];
+	return [NSString stringWithFormat:@"%@ -", [self CFBundleVersion]];
+}
+
+- (void)launchDaemon
+{
+	[self setWarpEnabled:YES];
+}
+
+- (void)versionRequestTimeout
+{
+	if (!_receivedDaemonVersion && [self isWarpDaemonRunning]) {
+		[self setWarpEnabled:NO];
+		[self performSelector:@selector(launchDaemon) withObject:nil afterDelay:1.0];
+	}
+}
+
+- (void)versionResponse:(NSNotification *)note
+{
+	_receivedDaemonVersion = YES;
+	
+	if (![[self CFBundleVersion] isEqualToString:[note object]]) {
+		[self setWarpEnabled:NO];
+		[self performSelector:@selector(launchDaemon) withObject:nil afterDelay:1.0];
+	}
 }
 
 - (void)workspaceNotificationReceived:(NSNotification *)note

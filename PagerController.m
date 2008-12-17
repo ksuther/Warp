@@ -119,6 +119,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	NSArray *animations = [NSArray arrayWithObject:dictionary];
 	NSViewAnimation *animation = [[[NSViewAnimation alloc] initWithViewAnimations:animations] autorelease];
 	
+	[animation setDuration:0.25];
 	[animation startAnimation];
 	
 	_pagerVisible = !_pagerVisible;

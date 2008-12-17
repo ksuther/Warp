@@ -22,11 +22,13 @@ extern NSString *WarpBundleIdentifier;
 	
 	NSMutableData *_updateResponseData;
 	BOOL _notifyForUpdates;
+	BOOL _receivedDaemonVersion;
 }
 
 @property BOOL warpEnabled;
 @property BOOL launchAtLogin;
 
+- (NSString *)CFBundleVersion;
 - (BOOL)isWarpDaemonRunning;
 
 - (IBAction)checkForUpdatesNow:(id)sender;
