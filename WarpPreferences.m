@@ -26,6 +26,8 @@
 #define UPDATE_SITE [NSURL URLWithString:@"http://www.ksuther.com/warp/update"]
 #define UPDATE_URL_STRING @"http://www.ksuther.com/warp/checkversion.php?v=%@"
 
+#define DONATE_URL [NSURL URLWithString:@"http://www.ksuther.com/warp/donate"]
+
 NSString *WarpDaemonName = @"WarpDaemon";
 NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 
@@ -114,6 +116,27 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 		NSAlert *alert = [NSAlert alertWithMessageText:spacesDisabledTitle defaultButton:NSLocalizedStringFromTableInBundle(@"Yes", nil, bundle, nil) alternateButton:NSLocalizedStringFromTableInBundle(@"No", nil, bundle, nil) otherButton:nil informativeTextWithFormat:spacesDisabledMsg];
 		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
 		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:self didEndSelector:@selector(spacesDisabledSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
+	}
+	
+	//Update the launch count if less than 3
+	NSNumber *count = [defaults valueForKey:@"PrefPaneUseCount"];
+	
+	if (!count || ![count isKindOfClass:[NSNumber class]]) {
+		count = [NSNumber numberWithInt:1];
+	} else {
+		count = [NSNumber numberWithInt:[count intValue] + 1];
+	}
+	
+	[defaults setValue:count forKey:@"PrefPaneUseCount"];
+	
+	if ([count intValue] == 4) {
+		//Run the donate request sheet
+		NSBundle *bundle = [self bundle];
+		NSString *donateRequestTitle = NSLocalizedStringFromTableInBundle(@"Please consider a donation", nil, bundle, nil);
+		NSString *donateRequestMsg = NSLocalizedStringFromTableInBundle(@"Warp is free to use, but donations help to support the future development of Warp. Please consider making a donation if you find Warp to be a useful addition to your system.", nil, bundle, nil);
+		NSAlert *alert = [NSAlert alertWithMessageText:donateRequestTitle defaultButton:NSLocalizedStringFromTableInBundle(@"Donate", nil, bundle, nil) alternateButton:NSLocalizedStringFromTableInBundle(@"Close", nil, bundle, nil) otherButton:nil informativeTextWithFormat:donateRequestMsg];
+		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
+		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:self didEndSelector:@selector(donateSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
 	}
 }
 
@@ -300,6 +323,13 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 		//Too bad I can't use Scripting Bridge doesn't like being called from within the same application
 		NSAppleScript *script = [[[NSAppleScript alloc] initWithSource:@"tell application \"System Preferences\"\nreveal anchor \"Spaces\" of pane id \"com.apple.preference.expose\"\nend tell"] autorelease];
 		[script performSelector:@selector(executeAndReturnError:) withObject:nil afterDelay:0.0];
+	}
+}
+
+- (void)donateSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	if (returnCode == NSOKButton) {
+		[[NSWorkspace sharedWorkspace] openURL:DONATE_URL];
 	}
 }
 
