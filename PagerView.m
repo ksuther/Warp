@@ -24,7 +24,9 @@
 	if (!_dragged) {
 		CALayer *clickedLayer = [[self layer] hitTest:NSPointToCGPoint([event locationInWindow])];
 		
-		if (clickedLayer && clickedLayer.zPosition >= 0) {
+		if (clickedLayer.zPosition == [MainController getCurrentSpaceIndex]) {
+			[clickedLayer setNeedsDisplay];
+		} else if (clickedLayer && clickedLayer.zPosition >= 0) {
 			[MainController switchToSpaceIndex:clickedLayer.zPosition - 1];
 		}
 	}

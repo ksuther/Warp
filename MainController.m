@@ -250,9 +250,25 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	return active;
 }
 
++ (NSInteger)getCurrentSpaceIndex
+{
+	NSInteger currentSpace;
+	
+	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess) {
+		if (currentSpace == 65538) {
+			return -1;
+		}
+		
+		return currentSpace;
+	} else {
+		return -1;
+	}
+}
+
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column
 {
-	NSInteger currentSpace = 0;
+	NSInteger currentSpace;
+	
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess) {
 		if (currentSpace == 65538) {
 			return -1;

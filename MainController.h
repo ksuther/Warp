@@ -46,6 +46,7 @@ enum {
 
 + (NSInteger)numberOfSpacesRows;
 + (NSInteger)numberOfSpacesColumns;
++ (NSInteger)getCurrentSpaceIndex;
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column;
 + (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge;
 + (BOOL)switchToSpaceRow:(NSInteger)row column:(NSInteger)column;

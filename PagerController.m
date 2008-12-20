@@ -63,6 +63,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
+	[_updateTimer invalidate];
 	[_layersView release];
 	[_pagerPanel release];
 	
@@ -125,6 +126,14 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	_pagerVisible = !_pagerVisible;
 	
 	[[NSUserDefaults standardUserDefaults] setBool:_pagerVisible forKey:@"PagerVisible"];
+	
+	if (_pagerVisible) {
+		[self performSelector:@selector(_updateActiveSpace) withObject:nil afterDelay:0.5];
+		_updateTimer = [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(_updateActiveSpace) userInfo:nil repeats:YES];
+	} else {
+		[_updateTimer invalidate];
+		_updateTimer = nil;
+	}
 }
 
 - (void)updatePager
@@ -206,60 +215,62 @@ static const CGFloat PagerBorderAlpha = 0.6;
 		NSInteger workspace = layer.zPosition;
 		NSInteger currentSpace = 0;
 		
+		//Draw the desktop background for the active space
 		if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && workspace == currentSpace) {
 			NSDictionary *desktopDict = [[[[NSUserDefaults standardUserDefaults] persistentDomainForName:@"com.apple.desktop"] objectForKey:@"Background"] objectForKey:@"default"];
 			
-			//Draw the desktop background
 			NSString *path = [desktopDict objectForKey:@"ImageFilePath"];
+			id change = [desktopDict objectForKey:@"Change"];
 			
-			if (![[desktopDict objectForKey:@"Change"] isEqualToString:@"Never"]) {
+			if (change && ![change isEqualToString:@"Never"]) {
 				path = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:[desktopDict objectForKey:@"LastName"]];
 			}
 			
 			NSImage *desktopImage = [[NSImage alloc] initByReferencingFile:path];
-			[desktopImage drawInRect:NSRectFromCGRect(layer.bounds) fromRect:NSMakeRect(0, 0, desktopImage.size.width, desktopImage.size.height) operation:NSCompositeSourceOver fraction:0.6];
+			
+			[desktopImage drawInRect:NSRectFromCGRect(layer.bounds) fromRect:NSMakeRect(0, 0, desktopImage.size.width, desktopImage.size.height) operation:NSCompositeSourceOver fraction:0.2];
 			[desktopImage release];
-		} else {
-			//Draw the live preview
-			NSInteger windowCount;
-			CGSGetWorkspaceWindowCount(_CGSDefaultConnection(), workspace, &windowCount);
+		}
+		
+		//Draw the live preview
+		NSInteger windowCount;
+		CGSGetWorkspaceWindowCount(_CGSDefaultConnection(), workspace, &windowCount);
+		
+		NSRect cellFrame = NSRectFromCGRect(layer.frame);
+		
+		if (windowCount > 0) {
+			static const CGFloat BorderPercentage = 0.02;
 			
-			NSRect cellFrame = NSRectFromCGRect(layer.frame);
+			NSInteger outCount;
+			NSInteger cid = [NSApp contextID];
+			CGRect cgrect;
 			
-			if (windowCount > 0) {
-				static const CGFloat BorderPercentage = 0.02;
-				
-				NSInteger outCount;
-				NSInteger cid = [NSApp contextID];
-				CGRect cgrect;
-				
-				NSInteger *list = malloc(sizeof(NSInteger) * windowCount);
-				CGSGetWorkspaceWindowList(_CGSDefaultConnection(), workspace, windowCount, list, &outCount);
-				
-				NSSize screenSize = [[NSScreen mainScreen] frame].size;
-				NSSize size = NSInsetRect(cellFrame, cellFrame.size.width * BorderPercentage, cellFrame.size.height * BorderPercentage).size;
-				CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-				
-				CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
-				
-				CGContextTranslateCTM(ctx, cellFrame.size.width * BorderPercentage, (cellFrame.size.height * BorderPercentage) * 1.5);
-				
-				for (NSInteger i = outCount - 1; i >= 0; i--) {
-					if (![self _isWarpWindow:list[i]]) {
-						CGSGetWindowBounds(cid, list[i], &cgrect);
-						
-						cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
-						
-						//CGContextTranslateCTM(ctx, 0, size.height);
-						CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
-						CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
-						CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
-						//CGContextTranslateCTM(ctx, 0, -size.height);
-					}
+			NSInteger *list = malloc(sizeof(NSInteger) * windowCount);
+			CGSGetWorkspaceWindowList(_CGSDefaultConnection(), workspace, windowCount, list, &outCount);
+			
+			NSSize screenSize = [[NSScreen mainScreen] frame].size;
+			NSSize size = NSInsetRect(cellFrame, cellFrame.size.width * BorderPercentage, cellFrame.size.height * BorderPercentage).size;
+			CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+			
+			CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
+			
+			CGContextTranslateCTM(ctx, cellFrame.size.width * BorderPercentage, (cellFrame.size.height * BorderPercentage) * 1.5);
+			
+			for (NSInteger i = outCount - 1; i >= 0; i--) {
+				if (![self _isWarpWindow:list[i]]) {
+					CGSGetWindowBounds(cid, list[i], &cgrect);
+					
+					cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
+					
+					//CGContextTranslateCTM(ctx, 0, size.height);
+					CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
+					CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
+					CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
+					//CGContextTranslateCTM(ctx, 0, -size.height);
 				}
-				
-				free(list);
 			}
+			
+			free(list);
 		}
 	}
 	
@@ -443,26 +454,24 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	CGColorRef borderColor = CGColorCreateGenericGray(PagerBorderGray, PagerBorderAlpha);
 	
 	for (CALayer *layer in [[_layersView layer] sublayers]) {
-		if (layer.zPosition == previousSpace) {
-			layer.borderColor = borderColor;
-			layer.borderWidth = 1.0;
-			
-			CATransition *transition = [CATransition animation];
-			transition.duration = 0.5;
-			[layer addAnimation:transition forKey:kCATransition];
-			[layer setNeedsDisplay];
-		} else if (layer.zPosition == _activeSpace) {
+		if (layer.zPosition == _activeSpace) {
 			CGColorRef color = CGColorCreateGenericRGB(1.0, 0.0, 0.0, 1.0);
 			layer.borderColor = color;
 			layer.borderWidth = 2.0;
 			CGColorRelease(color);
 			
-			CATransition *transition = [CATransition animation];
-			transition.duration = 0.5;
-			[layer addAnimation:transition forKey:kCATransition];
+			[layer setNeedsDisplay];
+		} else if (layer.zPosition == previousSpace && _activeSpace != previousSpace) {
+			layer.borderColor = borderColor;
+			layer.borderWidth = 1.0;
+			
 			[layer setNeedsDisplay];
 		}
 	}
+	
+	CATransition *transition = [CATransition animation];
+	transition.duration = 0.5;
+	[[_layersView layer] addAnimation:transition forKey:kCATransition];
 	
 	CGColorRelease(borderColor);
 	

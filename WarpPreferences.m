@@ -129,11 +129,11 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	
 	[defaults setValue:count forKey:@"PrefPaneUseCount"];
 	
-	if ([count intValue] == 4) {
+	if ([count intValue] == 1 || [count intValue] == 4) {
 		//Run the donate request sheet
 		NSBundle *bundle = [self bundle];
-		NSString *donateRequestTitle = NSLocalizedStringFromTableInBundle(@"Please consider a donation", nil, bundle, nil);
-		NSString *donateRequestMsg = NSLocalizedStringFromTableInBundle(@"Warp is free to use, but donations help to support the future development of Warp. Please consider making a donation if you find Warp to be a useful addition to your system.", nil, bundle, nil);
+		NSString *donateRequestTitle = NSLocalizedStringFromTableInBundle(@"Please consider donating", nil, bundle, nil);
+		NSString *donateRequestMsg = NSLocalizedStringFromTableInBundle(@"Warp is free to use, but donations help to support the future development of Warp. Please consider donating if you find Warp to be a useful addition to your system.", nil, bundle, nil);
 		NSAlert *alert = [NSAlert alertWithMessageText:donateRequestTitle defaultButton:NSLocalizedStringFromTableInBundle(@"Donate", nil, bundle, nil) alternateButton:NSLocalizedStringFromTableInBundle(@"Close", nil, bundle, nil) otherButton:nil informativeTextWithFormat:donateRequestMsg];
 		[alert setIcon:[[[NSImage alloc] initWithContentsOfFile:[[self bundle] pathForImageResource:@"Warp"]] autorelease]];
 		[alert beginSheetModalForWindow:[[self mainView] window] modalDelegate:self didEndSelector:@selector(donateSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];

@@ -16,6 +16,8 @@
 	NSPanel *_pagerPanel;
 	NSView *_layersView;
 	
+	NSTimer *_updateTimer;
+	
 	CALayer *_frameLayer;
 	CloseButtonLayer *_closeLayer;
 	NSTrackingArea *_closeTrackingArea;
