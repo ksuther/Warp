@@ -128,7 +128,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	[[NSUserDefaults standardUserDefaults] setBool:_pagerVisible forKey:@"PagerVisible"];
 	
 	if (_pagerVisible) {
-		[self performSelector:@selector(_updateActiveSpace) withObject:nil afterDelay:0.5];
+		[self performSelector:@selector(_updateActiveSpace) withObject:nil afterDelay:0.25];
 		_updateTimer = [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(_updateActiveSpace) userInfo:nil repeats:YES];
 	} else {
 		[_updateTimer invalidate];
