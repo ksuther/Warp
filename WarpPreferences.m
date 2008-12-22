@@ -127,7 +127,9 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 		count = [NSNumber numberWithInt:[count intValue] + 1];
 	}
 	
-	[defaults setValue:count forKey:@"PrefPaneUseCount"];
+	if ([count intValue] <= 5) {
+		[defaults setValue:count forKey:@"PrefPaneUseCount"];
+	}
 	
 	if ([count intValue] == 1 || [count intValue] == 4) {
 		//Run the donate request sheet
