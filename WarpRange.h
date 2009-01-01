@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 1/1/08.
-//  Copyright 2007-2008 Kent Sutherland. All rights reserved.
+//  Copyright 2007-2009 Kent Sutherland. All rights reserved.
 //
 
 typedef struct _WarpRange {

@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 11/21/08.
-//  Copyright 2008 Kent Sutherland. All rights reserved.
+//  Copyright 2008-2009 Kent Sutherland. All rights reserved.
 //
 
 #import "MainController.h"
@@ -172,25 +172,6 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	[NSGraphicsContext setCurrentContext:graphicsContext];
 	
 	if (layer.zPosition == 0) {
-		/*NSBezierPath *framePath = [NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(layer.bounds) xRadius:12 yRadius:12];
-		
-		[NSBezierPath setDefaultLineWidth:5.0];
-		
-		[[NSColor colorWithCalibratedWhite:0.0 alpha:1.0] set];
-		[framePath fill];
-		
-		//Draw the glassy gradient
-		NSRect glassRect = NSRectFromCGRect(CGRectInset(layer.bounds, -5, -5));
-		glassRect.origin.y += glassRect.size.height * .65;
-		glassRect.size.height *= .35;
-		
-		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:[NSColor colorWithCalibratedWhite:0.70 alpha:1.0] endingColor:[NSColor blackColor]];
-		NSBezierPath *glassPath = [NSBezierPath bezierPathWithRoundedRect:glassRect xRadius:20 yRadius:20];
-		
-		[framePath setClip];
-		[gradient drawInBezierPath:glassPath angle:270];
-		[gradient release];*/
-		
 		NSBezierPath *borderPath = [NSBezierPath bezierPathWithRoundedRect:NSRectFromCGRect(layer.bounds) xRadius:12 yRadius:12];
 		
 		[NSBezierPath setDefaultLineWidth:0.5];
@@ -415,7 +396,6 @@ static const CGFloat PagerBorderAlpha = 0.6;
 			layer.delegate = self;
 			layer.cornerRadius = 5.0;
 			layer.borderWidth = 1.0;
-			layer.masksToBounds = YES;
 			layer.opacity = 1.0;
 			layer.zPosition = [MainController spacesIndexForRow:i + 1 column:j + 1] + 1;
 			layer.bounds = CGRectMake(0, 0, (pagerSize.width / cols), (pagerSize.height / rows));
@@ -451,8 +431,6 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	
 	CGSGetWorkspace(_CGSDefaultConnection(), &_activeSpace);
 	
-	CGColorRef borderColor = CGColorCreateGenericGray(PagerBorderGray, PagerBorderAlpha);
-	
 	for (CALayer *layer in [[_layersView layer] sublayers]) {
 		if (layer.zPosition == _activeSpace) {
 			CGColorRef color = CGColorCreateGenericRGB(1.0, 0.0, 0.0, 1.0);
@@ -462,8 +440,10 @@ static const CGFloat PagerBorderAlpha = 0.6;
 			
 			[layer setNeedsDisplay];
 		} else if (layer.zPosition == previousSpace && _activeSpace != previousSpace) {
+			CGColorRef borderColor = CGColorCreateGenericGray(PagerBorderGray, PagerBorderAlpha);
 			layer.borderColor = borderColor;
 			layer.borderWidth = 1.0;
+			CGColorRelease(borderColor);
 			
 			[layer setNeedsDisplay];
 		}
@@ -472,8 +452,6 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	CATransition *transition = [CATransition animation];
 	transition.duration = 0.5;
 	[[_layersView layer] addAnimation:transition forKey:kCATransition];
-	
-	CGColorRelease(borderColor);
 	
 	[[_layersView layer] setNeedsLayout];
 }

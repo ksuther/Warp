@@ -3,7 +3,7 @@
 //  Edger
 //
 //  Created by Kent Sutherland on 11/1/07.
-//  Copyright 2007-2008 Kent Sutherland. All rights reserved.
+//  Copyright 2007-2009 Kent Sutherland. All rights reserved.
 //
 
 #import "MainController.h"
@@ -135,7 +135,10 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 	}
 	
 	if (direction != -1) {
-		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:direction], @"Direction", [NSValue valueWithPointer:edge], @"Edge", nil];
+		NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
+															[NSNumber numberWithInt:direction], @"Direction",
+															[NSValue valueWithPointer:edge], @"Edge",
+															[NSNumber numberWithBool:(GetEventKind(theEvent) == kEventMouseDragged)], @"Dragged", nil];
 		
 		if ([[[_warpTimer userInfo] objectForKey:@"Edge"] pointerValue] != edge) {
 			[_warpTimer invalidate];
@@ -358,6 +361,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 {
 	NSUInteger direction = [[[timer userInfo] objectForKey:@"Direction"] unsignedIntValue];
 	Edge *edge = [[[timer userInfo] objectForKey:@"Edge"] pointerValue];
+	BOOL dragged = [[[timer userInfo] objectForKey:@"Dragged"] boolValue];
 	BOOL onEdge = NO;
 	CGPoint mouseLocation;
 	
@@ -370,7 +374,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	}
 	
 	if (onEdge && [self requiredModifiersDown]) {
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"] &&
+		if (!dragged && [[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"] &&
 				!([[NSUserDefaults standardUserDefaults] boolForKey:@"DisableForMenubarDock"] && edge->isDockOrMenubar)) {
 			NSPoint spacePoint = [self getSpaceInDirection:direction];
 			NSInteger spacesIndex = [self spacesIndexForRow:spacePoint.y column:spacePoint.x];
@@ -779,23 +783,15 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 {
 	[self _unregisterCarbonEventHandlers];
 	
+	EventTypeSpec eventType[2];
+	eventType[0].eventClass = kEventClassMouse;
+	eventType[0].eventKind = kEventMouseMoved;
+	eventType[1].eventClass = kEventClassMouse;
+	eventType[1].eventKind = kEventMouseDragged;
+	
 	mouseMovedHandlerUPP = NewEventHandlerUPP(mouseMovedHandler);
 	
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"ClickToWarp"]) {
-		EventTypeSpec eventType[1];
-		eventType[0].eventClass = kEventClassMouse;
-		eventType[0].eventKind = kEventMouseMoved;
-		
-		InstallEventHandler(GetEventMonitorTarget(), mouseMovedHandlerUPP, 1, eventType, nil, &mouseHandler);
-	} else {
-		EventTypeSpec eventType[2];
-		eventType[0].eventClass = kEventClassMouse;
-		eventType[0].eventKind = kEventMouseMoved;
-		eventType[1].eventClass = kEventClassMouse;
-		eventType[1].eventKind = kEventMouseDragged;
-		
-		InstallEventHandler(GetEventMonitorTarget(), mouseMovedHandlerUPP, 2, eventType, nil, &mouseHandler);
-	}
+	InstallEventHandler(GetEventMonitorTarget(), mouseMovedHandlerUPP, 2, eventType, nil, &mouseHandler);
 }
 
 - (void)_unregisterCarbonEventHandlers

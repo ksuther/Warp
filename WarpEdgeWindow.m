@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 2/13/08.
-//  Copyright 2008 Kent Sutherland. All rights reserved.
+//  Copyright 2008-2009 Kent Sutherland. All rights reserved.
 //
 
 #import "WarpEdgeWindow.h"
