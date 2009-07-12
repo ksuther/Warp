@@ -18,6 +18,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 static const CGFloat PagerBorderGray = 0.2;
 static const CGFloat PagerBorderAlpha = 0.6;
+static const CGFloat PagerBorderWidth = 4;
 
 @interface NSApplication (ContextID)
 - (NSInteger)contextID;
@@ -185,7 +186,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 		//Draw clear in each of the spaces
 		for (CALayer *layer in [[_layersView layer] sublayers]) {
 			CGRect frame = [layer convertRect:layer.frame toLayer:layer];
-			frame.origin.x += 8;
+			frame.origin.x += PagerBorderWidth;
 			
 			//Clear the area of each space
 			[[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeClear];
@@ -226,6 +227,8 @@ static const CGFloat PagerBorderAlpha = 0.6;
 			NSInteger cid = [NSApp contextID];
 			CGRect cgrect;
 			
+			CGColorRef borderColor = CGColorCreateGenericGray(0.5, 1.0);
+			
 			NSInteger *list = malloc(sizeof(NSInteger) * windowCount);
 			CGSGetWorkspaceWindowList(_CGSDefaultConnection(), workspace, windowCount, list, &outCount);
 			
@@ -243,15 +246,70 @@ static const CGFloat PagerBorderAlpha = 0.6;
 					
 					cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
 					
-					//CGContextTranslateCTM(ctx, 0, size.height);
-					CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
-					CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
-					CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
-					//CGContextTranslateCTM(ctx, 0, -size.height);
+					if (0) {
+						CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
+						CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
+						CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
+					} else {
+						CGRect windowRect = cgrect;
+						
+						windowRect.origin.x = (cgrect.origin.x / screenSize.width) * size.width;
+						windowRect.origin.y = (cgrect.origin.y / screenSize.height) * size.height;
+						windowRect.size.width *= size.width / screenSize.width;
+						windowRect.size.height *= size.height / screenSize.height;
+						
+						//Fill and stroke the window rect
+						CGContextSetFillColorWithColor(ctx, CGColorGetConstantColor(kCGColorWhite));
+						CGContextFillRect(ctx, windowRect);
+						
+						CGContextSetStrokeColorWithColor(ctx, borderColor);
+						CGContextStrokeRect(ctx, windowRect);
+						
+						//Get the application icon for this window
+						CGSConnection windowConncection;
+						CGError error;
+						pid_t pid;
+						ProcessSerialNumber psn;
+						FSRef processLocation;
+						
+						error = CGSGetWindowOwner(_CGSDefaultConnection(), list[i], &windowConncection);
+						NSAssert1(error == noErr, @"CGSGetWindowOwner() failed! %d", error);
+						
+						error = CGSConnectionGetPID(windowConncection, &pid, windowConncection);
+						NSAssert1(error == noErr, @"CGSConnectionGetPID() failed! %d", error);
+						
+						error = GetProcessForPID(pid, &psn);
+						NSAssert1(error == noErr, @"GetProcessForPID() failed! %d", error);
+						
+						error = GetProcessBundleLocation(&psn, &processLocation);
+						NSAssert1(error == noErr, @"GetProcessBundleLocation() failed! %d", error);
+						
+						NSURL *applicationURL = (NSURL *)CFURLCreateFromFSRef(kCFAllocatorDefault, &processLocation);
+						
+						NSImage *image = [[NSWorkspace sharedWorkspace] iconForFile:[applicationURL path]];
+						NSSize imageSize = image.size;
+						
+						NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithGraphicsPort:ctx flipped:NO];
+						[NSGraphicsContext saveGraphicsState];
+						[NSGraphicsContext setCurrentContext:context];
+						
+						NSRect iconRect = NSRectFromCGRect(cgrect);
+						
+						iconRect.origin.x = ((iconRect.origin.x + (iconRect.size.width / 2)) / screenSize.width) * size.width - 8;
+						iconRect.origin.y = ((iconRect.origin.y + (iconRect.size.height / 2)) / screenSize.height) * size.height - 8;
+						iconRect.size.width = 16;
+						iconRect.size.height = 16;
+						
+						[image drawInRect:iconRect fromRect:NSMakeRect(0, 0, imageSize.width, imageSize.height) operation:NSCompositeSourceOver fraction:1.0];
+						
+						[NSGraphicsContext restoreGraphicsState];
+					}
 				}
 			}
 			
 			free(list);
+			
+			CGColorRelease(borderColor);
 		}
 	}
 	
@@ -290,10 +348,10 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	
 	[_pagerPanel setDelegate:self];
 	
-	NSRect layersRect = NSInsetRect([[_pagerPanel contentView] bounds], 8, 8);
-	layersRect.origin.y -= 8;
-	layersRect.size.width += 8;
-	layersRect.size.height += 8;
+	NSRect layersRect = NSInsetRect([[_pagerPanel contentView] bounds], PagerBorderWidth, PagerBorderWidth);
+	layersRect.origin.y -= PagerBorderWidth;
+	layersRect.size.width += PagerBorderWidth;
+	layersRect.size.height += PagerBorderWidth;
 	
 	_layersView = [[PagerView alloc] initWithFrame:layersRect];
 	[_layersView setWantsLayer:YES];
@@ -319,7 +377,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	CALayer *resizeLayer = [CALayer layer];
 	
 	resizeLayer.autoresizingMask = kCALayerMinXMargin | kCALayerMaxYMargin;
-	resizeLayer.frame = CGRectMake(_pagerPanel.frame.size.width - 12, 4, 8, 8);
+	resizeLayer.frame = CGRectMake(_pagerPanel.frame.size.width - (PagerBorderWidth + 4), 4, PagerBorderWidth, PagerBorderWidth);
 	resizeLayer.contents = (id)resizeImage;
 	[[[_pagerPanel contentView] layer] addSublayer:resizeLayer];
 	
@@ -366,15 +424,15 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	}
 	
 	NSRect currentFrame = _pagerPanel.frame;
-	CGFloat newWidth = ((cellWidth + 8) * cols) + 8;
-	CGFloat newHeight = (((cellWidth / ratio) + 8) * rows) + 8;
+	CGFloat newWidth = ((cellWidth + PagerBorderWidth) * cols) + PagerBorderWidth;
+	CGFloat newHeight = (((cellWidth / ratio) + PagerBorderWidth) * rows) + PagerBorderWidth;
 	CGFloat heightAdjust = (currentFrame.size.height > 0) ? (currentFrame.size.height - newHeight) : 0;
 	NSRect pagerFrame = NSMakeRect(currentFrame.origin.x, currentFrame.origin.y + heightAdjust, newWidth, newHeight);
 	
 	[_pagerPanel setFrame:pagerFrame display:YES animate:animate];
 	[_pagerPanel setContentAspectRatio:NSMakeSize(pagerFrame.size.width, pagerFrame.size.height)];
-	[_pagerPanel setMinSize:NSMakeSize(cols * 56 + 8, cols * 56 + 8)];
-	[_pagerPanel setMaxSize:NSMakeSize(cols * 200 + 8, cols * 200 + 8)];
+	[_pagerPanel setMinSize:NSMakeSize(cols * 56 + PagerBorderWidth, cols * 56 + PagerBorderWidth)];
+	[_pagerPanel setMaxSize:NSMakeSize(cols * 200 + PagerBorderWidth, cols * 200 + PagerBorderWidth)];
 }
 
 - (void)_createSpacesLayers
@@ -382,7 +440,7 @@ static const CGFloat PagerBorderAlpha = 0.6;
 	CGFloat ratio = (CGFloat)CGDisplayPixelsWide(kCGDirectMainDisplay) / CGDisplayPixelsHigh(kCGDirectMainDisplay);
 	NSSize pagerSize = NSMakeSize(320, 320 / ratio);
 	NSInteger cols = [MainController numberOfSpacesColumns], rows = [MainController numberOfSpacesRows];
-	//NSSize layerSize = NSMakeSize(pagerSize.width - (cols + 1) * 8, pagerSize.height - (rows + 1) * 8);
+	//NSSize layerSize = NSMakeSize(pagerSize.width - (cols + 1) * PagerBorderWidth, pagerSize.height - (rows + 1) * PagerBorderWidth);
 	CGColorRef backgroundColor = CGColorCreateGenericGray(0.0, 0.4);
 	CGColorRef borderColor = CGColorCreateGenericGray(PagerBorderGray, PagerBorderAlpha);
 	
@@ -400,19 +458,19 @@ static const CGFloat PagerBorderAlpha = 0.6;
 			layer.zPosition = [MainController spacesIndexForRow:i + 1 column:j + 1] + 1;
 			layer.bounds = CGRectMake(0, 0, (pagerSize.width / cols), (pagerSize.height / rows));
 			
-			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintWidth relativeTo:@"superlayer" attribute:kCAConstraintWidth scale:(1.0 / cols) offset:-8]];
-			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintHeight relativeTo:@"superlayer" attribute:kCAConstraintHeight scale:(1.0 / rows) offset:-8]];
+			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintWidth relativeTo:@"superlayer" attribute:kCAConstraintWidth scale:(1.0 / cols) offset:-PagerBorderWidth]];
+			[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintHeight relativeTo:@"superlayer" attribute:kCAConstraintHeight scale:(1.0 / rows) offset:-PagerBorderWidth]];
 			
 			if (i == 0) {
 				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:@"superlayer" attribute:kCAConstraintMaxY offset:0]];
 			} else if (i < rows) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:[NSString stringWithFormat:@"%d.%d", i - 1, j] attribute:kCAConstraintMinY offset:-8]];
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:[NSString stringWithFormat:@"%d.%d", i - 1, j] attribute:kCAConstraintMinY offset:-PagerBorderWidth]];
 			}
 			
 			if (j == 0) {
 				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX offset:0]];
 			} else if (j < cols) {
-				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:[NSString stringWithFormat:@"%d.%d", i, j - 1] attribute:kCAConstraintMaxX offset:8]];
+				[layer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:[NSString stringWithFormat:@"%d.%d", i, j - 1] attribute:kCAConstraintMaxX offset:PagerBorderWidth]];
 			}
 			
 			[[_layersView layer] addSublayer:layer];

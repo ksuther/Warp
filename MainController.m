@@ -235,7 +235,8 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 
 + (BOOL)requiredModifiersDown
 {
-	return _activationModifiers == 0 || (GetCurrentKeyModifiers() & _activationModifiers) == _activationModifiers;
+	//return _activationModifiers == 0 || (GetCurrentKeyModifiers() & _activationModifiers) == _activationModifiers;
+	return GetCurrentKeyModifiers() == _activationModifiers;
 }
 
 + (BOOL)isSecurityAgentActive
