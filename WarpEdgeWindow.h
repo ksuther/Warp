@@ -25,4 +25,6 @@
 - (Edge *)edge;
 - (void)setEdge:(Edge *)edge;
 
+- (void)fadeOut;
+
 @end

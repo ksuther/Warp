@@ -96,4 +96,9 @@ static const CGFloat kWarpEdgeWidth = 240.0f;
 	return NO;
 }
 
+- (void)fadeOut
+{
+	[(WarpEdgeView *)[self contentView] fadeOut];
+}
+
 @end

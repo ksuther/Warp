@@ -27,7 +27,6 @@
 		3743464A0D63ADCC00189144 /* WarpEdgeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 374346490D63ADCC00189144 /* WarpEdgeView.m */; };
 		374347280D63CC7000189144 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 374347270D63CC7000189144 /* QuartzCore.framework */; };
 		37434A610D64BEF600189144 /* ScreenSaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37434A600D64BEF600189144 /* ScreenSaver.framework */; };
-		374CCBCE0EF1EC6E00C1D359 /* CTGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC30EF1EC6E00C1D359 /* CTGradient.m */; };
 		374CCBCF0EF1EC6E00C1D359 /* SRCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC50EF1EC6E00C1D359 /* SRCommon.m */; };
 		374CCBD00EF1EC6E00C1D359 /* SRKeyCodeTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC70EF1EC6E00C1D359 /* SRKeyCodeTransformer.m */; };
 		374CCBD10EF1EC6E00C1D359 /* SRRecorderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC90EF1EC6E00C1D359 /* SRRecorderCell.m */; };
@@ -124,8 +123,6 @@
 		37434AD30D6540DA00189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37434AD60D6541E900189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		37434AD70D6541EE00189144 /* German */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = German; path = German.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
-		374CCBC20EF1EC6E00C1D359 /* CTGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTGradient.h; path = ShortcutRecorder/Source/CTGradient.h; sourceTree = "<group>"; };
-		374CCBC30EF1EC6E00C1D359 /* CTGradient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CTGradient.m; path = ShortcutRecorder/Source/CTGradient.m; sourceTree = "<group>"; };
 		374CCBC40EF1EC6E00C1D359 /* SRCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRCommon.h; path = ShortcutRecorder/Source/SRCommon.h; sourceTree = "<group>"; };
 		374CCBC50EF1EC6E00C1D359 /* SRCommon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRCommon.m; path = ShortcutRecorder/Source/SRCommon.m; sourceTree = "<group>"; };
 		374CCBC60EF1EC6E00C1D359 /* SRKeyCodeTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRKeyCodeTransformer.h; path = ShortcutRecorder/Source/SRKeyCodeTransformer.h; sourceTree = "<group>"; };
@@ -303,8 +300,6 @@
 		374CCBC10EF1EC4200C1D359 /* ShortcutRecorder */ = {
 			isa = PBXGroup;
 			children = (
-				374CCBC20EF1EC6E00C1D359 /* CTGradient.h */,
-				374CCBC30EF1EC6E00C1D359 /* CTGradient.m */,
 				374CCBC40EF1EC6E00C1D359 /* SRCommon.h */,
 				374CCBC50EF1EC6E00C1D359 /* SRCommon.m */,
 				374CCBC60EF1EC6E00C1D359 /* SRKeyCodeTransformer.h */,
@@ -448,7 +443,6 @@
 			files = (
 				3790F8F50CDB05CE00A034FA /* WarpPreferences.m in Sources */,
 				375167B60CE2DD6F00B39CD3 /* WarpDefaults.m in Sources */,
-				374CCBCE0EF1EC6E00C1D359 /* CTGradient.m in Sources */,
 				374CCBCF0EF1EC6E00C1D359 /* SRCommon.m in Sources */,
 				374CCBD00EF1EC6E00C1D359 /* SRKeyCodeTransformer.m in Sources */,
 				374CCBD10EF1EC6E00C1D359 /* SRRecorderCell.m in Sources */,
@@ -552,10 +546,13 @@
 		3790F8C30CDB042200A034FA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_GC = supported;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -578,10 +575,13 @@
 		3790F8C40CDB042200A034FA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_GC = supported;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";

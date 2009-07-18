@@ -22,4 +22,6 @@
 
 - (id)initWithFrame:(NSRect)frame workspace:(NSInteger)workspace direction:(NSUInteger)direction;
 
+- (void)fadeOut;
+
 @end

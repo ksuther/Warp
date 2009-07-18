@@ -477,14 +477,9 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 			}
 			
 			if ([df boolForKey:@"ClickToWarp"]) {
-				//Determine if the click-to-warp floating window should be hidden
-				NSPoint nextSpace = [self getSpaceInDirection:direction row:row column:col];
-				
-				if ([self spacesIndexForRow:nextSpace.y column:nextSpace.x] == -1) {
-					[_edgeWindow orderOut:nil];
-					[_edgeWindow release];
-					_edgeWindow = nil;
-				}
+				//Fade out the click-to-warp window
+				[_edgeWindow fadeOut];
+				_edgeWindow = nil;
 			}
 		}
 	}

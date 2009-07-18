@@ -303,7 +303,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 	[defaults setValue:[NSNumber numberWithUnsignedInt:SRCocoaToCarbonFlags(newKeyCombo.flags)] forKey:@"PagerModifierFlags"];
 }
 
-- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder isKeyCode:(signed short)keyCode andFlagsTaken:(unsigned int)flags reason:(NSString **)aReason;
+- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder isKeyCode:(NSInteger)keyCode andFlagsTaken:(NSUInteger)flags reason:(NSString **)aReason;
 {
 	return NO;
 }

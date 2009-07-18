@@ -133,18 +133,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 - (void)mouseExited:(NSEvent *)event
 {
-	if (_animation) {
-		[_animation stopAnimation];
-		[_animation release];
-	}
-	
-	NSDictionary *animationDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[self window], NSViewAnimationTargetKey, NSViewAnimationFadeOutEffect, NSViewAnimationEffectKey, nil];
-	_animation = [[NSViewAnimation alloc] initWithViewAnimations:[NSArray arrayWithObject:animationDictionary]];
-	
-	[_animation setDelegate:self];
-	[_animation startAnimation];
-	
-	[self removeTrackingArea:_trackingArea];
+	[self fadeOut];
 }
 
 - (NSMenu *)menuForEvent:(NSEvent *)event
@@ -157,6 +146,22 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 - (BOOL)isOpaque
 {
 	return NO;
+}
+
+- (void)fadeOut
+{
+	if (_animation) {
+		[_animation stopAnimation];
+		[_animation release];
+	}
+	
+	NSDictionary *animationDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[self window], NSViewAnimationTargetKey, NSViewAnimationFadeOutEffect, NSViewAnimationEffectKey, nil];
+	_animation = [[NSViewAnimation alloc] initWithViewAnimations:[NSArray arrayWithObject:animationDictionary]];
+	
+	[_animation setDelegate:self];
+	[_animation startAnimation];
+	
+	[self removeTrackingArea:_trackingArea];
 }
 
 - (void)animationDidEnd:(NSAnimation *)animation
