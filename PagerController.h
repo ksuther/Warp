@@ -9,6 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 
+typedef enum PagerStyle {
+	PagerStyleWindowContents = 0,
+	PagerStyleWindowBordersAndIcons,
+} PagerStyle;
+
 @class CloseButtonLayer;
 
 @interface PagerController : NSObject {

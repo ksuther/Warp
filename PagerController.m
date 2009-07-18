@@ -18,7 +18,7 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 
 static const CGFloat PagerBorderGray = 0.2;
 static const CGFloat PagerBorderAlpha = 0.6;
-static const CGFloat PagerBorderWidth = 4;
+static const CGFloat PagerBorderWidth = 5;
 
 @interface NSApplication (ContextID)
 - (NSInteger)contextID;
@@ -246,7 +246,7 @@ static const CGFloat PagerBorderWidth = 4;
 					
 					cgrect.origin.y = screenSize.height - cgrect.size.height - cgrect.origin.y;
 					
-					if (0) {
+					if ([[NSUserDefaults standardUserDefaults] integerForKey:@"PagerStyle"] == PagerStyleWindowContents) {
 						CGContextScaleCTM(ctx, size.width / screenSize.width, size.height / screenSize.height);
 						CGContextCopyWindowCaptureContentsToRect(ctx, cgrect, cid, list[i], 0);
 						CGContextScaleCTM(ctx, screenSize.width / size.width, screenSize.height / size.height);
