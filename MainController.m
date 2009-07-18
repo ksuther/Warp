@@ -302,16 +302,32 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	switch (direction) {
 		case LeftDirection:
 			if (_wraparound && col == 1 && cols > 1) {
-				//Wrap to the rightmost space
+				//Wrap to the rightmost space and move up a row, or down to the bototm row if already at the top row
 				col = cols + 1;
+				
+				if (![[NSUserDefaults standardUserDefaults] boolForKey:@"OldWrapStyle"]) {
+					row--;
+					
+					if (row < 1) {
+						row = rows;
+					}
+				}
 			}
 			
 			col--;
 			break;
 		case RightDirection:
 			if (_wraparound && col == cols && cols > 1) {
-				//Wrap to the leftmost space
+				//Wrap to the leftmost space and move down a row, or up to the top row if already at the bottom row
 				col = 0;
+				
+				if (![[NSUserDefaults standardUserDefaults] boolForKey:@"OldWrapStyle"]) {
+					row++;
+					
+					if (row > rows) {
+						row = 1;
+					}
+				}
 			}
 			
 			col++;
