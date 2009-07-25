@@ -52,6 +52,7 @@
 		3790FC190CDEF6F700A034FA /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */; };
 		379D46C20ED79FA700751DB8 /* PagerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 379D46C10ED79FA700751DB8 /* PagerView.m */; };
 		37D0E3ED0ED7110F0037F407 /* PagerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D0E3EC0ED7110F0037F407 /* PagerController.m */; };
+		37D268B6101B350C003CA1F5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 375166BE0CE2C6C500B39CD3 /* Localizable.strings */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -133,10 +134,10 @@
 		374CCBCB0EF1EC6E00C1D359 /* SRRecorderControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRRecorderControl.m; path = ShortcutRecorder/Source/SRRecorderControl.m; sourceTree = "<group>"; };
 		374CCBCC0EF1EC6E00C1D359 /* SRValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SRValidator.h; path = ShortcutRecorder/Source/SRValidator.h; sourceTree = "<group>"; };
 		374CCBCD0EF1EC6E00C1D359 /* SRValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRValidator.m; path = ShortcutRecorder/Source/SRValidator.m; sourceTree = "<group>"; };
-		374CCBD50EF1EC7D00C1D359 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = ShortcutRecorder/English.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
-		374CCBD70EF1EC8500C1D359 /* Dutch */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Dutch; path = ShortcutRecorder/Dutch.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
-		374CCBD80EF1EC9100C1D359 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = German; path = ShortcutRecorder/German.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
-		374CCBD90EF1EC9700C1D359 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = ShortcutRecorder/sv.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD50EF1EC7D00C1D359 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = ShortcutRecorder/English.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD70EF1EC8500C1D359 /* Dutch */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Dutch; path = ShortcutRecorder/Dutch.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD80EF1EC9100C1D359 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = ShortcutRecorder/German.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD90EF1EC9700C1D359 /* sv */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = sv; path = ShortcutRecorder/sv.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
 		375167B50CE2DD6F00B39CD3 /* WarpDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpDefaults.m; sourceTree = "<group>"; };
@@ -166,6 +167,7 @@
 		37B04B130D2AE86700380FB3 /* WarpRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpRange.h; sourceTree = "<group>"; };
 		37D0E3EB0ED7110F0037F407 /* PagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagerController.h; sourceTree = "<group>"; };
 		37D0E3EC0ED7110F0037F407 /* PagerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagerController.m; sourceTree = "<group>"; };
+		37D268C5101B3585003CA1F5 /* French */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* WarpDaemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WarpDaemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -429,6 +431,7 @@
 			files = (
 				8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */,
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				37D268B6101B350C003CA1F5 /* Localizable.strings in Resources */,
 				3759DCD10EF5793D00A76FD0 /* resize_corner.png in Resources */,
 				3759DD1B0EF5824400A76FD0 /* closebox.png in Resources */,
 			);
@@ -510,6 +513,7 @@
 				374CCBD70EF1EC8500C1D359 /* Dutch */,
 				374CCBD80EF1EC9100C1D359 /* German */,
 				374CCBD90EF1EC9700C1D359 /* sv */,
+				37D268C5101B3585003CA1F5 /* French */,
 			);
 			name = ShortcutRecorder.strings;
 			sourceTree = "<group>";
