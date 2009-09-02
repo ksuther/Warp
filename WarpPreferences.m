@@ -238,16 +238,17 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 
 - (void)setLaunchAtLogin:(BOOL)enabled
 {
-	SystemEventsApplication *app = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
-	
-	if (enabled) {
+    if (enabled) {
 		//Add to login items
-		NSDictionary *properties = [NSDictionary dictionaryWithObjectsAndKeys:[[NSBundle bundleForClass:[self class]] pathForResource:WarpDaemonName ofType:@"app"], @"path", [NSNumber numberWithBool:NO], @"hidden", nil];
-		SBObject *object = [[[SBObject alloc] initWithElementCode:'logi' properties:properties data:nil] autorelease];
-		
-		[[app loginItems] addObject:object];
+        NSString *daemonPath = [[NSBundle bundleForClass:[self class]] pathForResource:WarpDaemonName ofType:@"app"];
+        NSString *source = [NSString stringWithFormat:@"tell application \"System Events\" to make new login item with properties {path:\"%@\", hidden:false} at end", daemonPath];
+        NSAppleScript *script = [[[NSAppleScript alloc] initWithSource:source] autorelease];
+        
+		[script executeAndReturnError:nil];
 	} else {
-		//Remove from login items
+        //Remove from login items
+        SystemEventsApplication *app = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
+        
 		for (id nextItem in [app loginItems]) {
 			if ([[nextItem name] isEqualToString:WarpDaemonName]) {
 				[[app loginItems] removeObject:nextItem];
@@ -297,13 +298,13 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 #pragma mark -
 #pragma mark ShortcutRecorder Delegate
 
-- (void)shortcutRecorder:(SRRecorderControl *)aRecorder keyComboDidChange:(KeyCombo)newKeyCombo;
+- (void)shortcutRecorder:(SRRecorderControl *)aRecorder keyComboDidChange:(KeyCombo)newKeyCombo
 {
 	[defaults setValue:[NSNumber numberWithShort:newKeyCombo.code] forKey:@"PagerKeyCode"];
 	[defaults setValue:[NSNumber numberWithUnsignedInt:SRCocoaToCarbonFlags(newKeyCombo.flags)] forKey:@"PagerModifierFlags"];
 }
 
-- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder isKeyCode:(NSInteger)keyCode andFlagsTaken:(NSUInteger)flags reason:(NSString **)aReason;
+- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder isKeyCode:(NSInteger)keyCode andFlagsTaken:(NSUInteger)flags reason:(NSString **)aReason
 {
 	return NO;
 }
