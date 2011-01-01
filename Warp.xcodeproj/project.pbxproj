@@ -117,7 +117,6 @@
 		374346480D63ADCC00189144 /* WarpEdgeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpEdgeView.h; sourceTree = "<group>"; };
 		374346490D63ADCC00189144 /* WarpEdgeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpEdgeView.m; sourceTree = "<group>"; };
 		374347270D63CC7000189144 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
-		37434A5F0D64BEEA00189144 /* ScreenSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaver.h; sourceTree = "<group>"; };
 		37434ACE0D653FA200189144 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37434AD30D6540DA00189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37434AD60D6541E900189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
@@ -260,7 +259,6 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				37434A5F0D64BEEA00189144 /* ScreenSaver.h */,
 				3759DE930EF6C8A500A76FD0 /* CGSPrivate.h */,
 				37B04B130D2AE86700380FB3 /* WarpRange.h */,
 				32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */,
