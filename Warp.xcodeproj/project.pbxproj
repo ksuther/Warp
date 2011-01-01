@@ -134,7 +134,7 @@
 		374CCBCD0EF1EC6E00C1D359 /* SRValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SRValidator.m; path = ShortcutRecorder/Source/SRValidator.m; sourceTree = "<group>"; };
 		374CCBD50EF1EC7D00C1D359 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = ShortcutRecorder/English.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		374CCBD70EF1EC8500C1D359 /* Dutch */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Dutch; path = ShortcutRecorder/Dutch.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
-		374CCBD80EF1EC9100C1D359 /* German */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = German; path = ShortcutRecorder/German.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
+		374CCBD80EF1EC9100C1D359 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = ShortcutRecorder/German.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		374CCBD90EF1EC9700C1D359 /* sv */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = sv; path = ShortcutRecorder/sv.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		375166BF0CE2C6C500B39CD3 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		375167B40CE2DD6F00B39CD3 /* WarpDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WarpDefaults.h; sourceTree = "<group>"; };
