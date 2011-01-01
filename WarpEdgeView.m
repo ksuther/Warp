@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 2/13/08.
-//  Copyright 2008-2009 Kent Sutherland. All rights reserved.
+//  Copyright 2008-2011 Kent Sutherland. All rights reserved.
 //
 
 #import "WarpEdgeView.h"
@@ -211,11 +211,11 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	NSInteger count = _windowCount;
 	
 	if (count > 0) {
-		NSInteger outCount;
+		int outCount;
 		NSInteger cid = [NSApp contextID];
 		CGRect cgrect;
 		
-		NSInteger *list = malloc(sizeof(NSInteger) * count);
+		int *list = malloc(sizeof(int) * count);
 		CGSGetWorkspaceWindowList(_CGSDefaultConnection(), _workspace + 1, count, list, &outCount);
 		
 		NSSize screenSize = [[NSScreen mainScreen] frame].size;

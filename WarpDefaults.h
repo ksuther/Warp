@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 11/8/07.
-//  Copyright 2007-2009 Kent Sutherland. All rights reserved.
+//  Copyright 2007-2011 Kent Sutherland. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

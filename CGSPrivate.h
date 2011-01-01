@@ -106,6 +106,7 @@ extern "C" {
   // Owner
   extern CGError CGSGetWindowOwner(const CGSConnection cid, const CGSWindow wid, CGSConnection *ownerCid);
   extern CGError CGSConnectionGetPID(const CGSConnection cid, pid_t *pid, const CGSConnection ownerCid);
+  extern CGError CGSGetConnectionIDForPSN(const CGSConnection cid, ProcessSerialNumber *psn, CGSConnection *targetConnection);
   
 #pragma mark Window Tags
   

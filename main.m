@@ -3,7 +3,7 @@
 //  Edger
 //
 //  Created by Kent Sutherland on 11/1/07.
-//  Copyright Kent Sutherland 2007-2009. All rights reserved.
+//  Copyright Kent Sutherland 2007-2011. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

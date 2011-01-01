@@ -3,11 +3,12 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 11/21/08.
-//  Copyright 2008-2009 Kent Sutherland. All rights reserved.
+//  Copyright 2008-2011 Kent Sutherland. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
+#import "CGSPrivate.h"
 
 typedef enum PagerStyle {
 	PagerStyleWindowContents = 0,
@@ -27,7 +28,7 @@ typedef enum PagerStyle {
 	CloseButtonLayer *_closeLayer;
 	NSTrackingArea *_closeTrackingArea;
 	
-	NSInteger _activeSpace;
+	CGSWorkspace _activeSpace;
 }
 
 - (void)hidePager;

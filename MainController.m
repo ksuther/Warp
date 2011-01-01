@@ -3,20 +3,19 @@
 //  Edger
 //
 //  Created by Kent Sutherland on 11/1/07.
-//  Copyright 2007-2009 Kent Sutherland. All rights reserved.
+//  Copyright 2007-2011 Kent Sutherland. All rights reserved.
 //
 
 #import "MainController.h"
 #import "WarpEdgeWindow.h"
 #import "CGSPrivate.h"
-#import "ScreenSaver.h"
 #import "PagerController.h"
 
 static const int WarpCornerPadding = 30;
 
 NSString *SwitchSpacesNotification = @"com.apple.switchSpaces";
 float _activationDelay;
-NSUInteger _activationModifiers;
+UInt32 _activationModifiers;
 BOOL _warpMouse, _wraparound;
 Edge *_hEdges = nil, *_vEdges = nil;
 CGRect _totalScreenRect;
@@ -150,7 +149,7 @@ OSStatus mouseMovedHandler(EventHandlerCallRef nextHandler, EventRef theEvent, v
 }
 
 void spacesSwitchCallback(int data1, int data2, int data3, void *userParameter) {
-	NSInteger currentSpace = 0;
+	CGSWorkspace currentSpace = 0;
 	
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && currentSpace != 65538) {
 		NSDictionary *info = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentSpace] forKey:@"Space"];
@@ -235,8 +234,11 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 
 + (BOOL)requiredModifiersDown
 {
-	//return _activationModifiers == 0 || (GetCurrentKeyModifiers() & _activationModifiers) == _activationModifiers;
-	return GetCurrentKeyModifiers() == _activationModifiers;
+    UInt32 modifiers = GetCurrentKeyModifiers();
+    
+    modifiers &= ~alphaLock; //strip caps lock from modifiers
+    
+	return modifiers == _activationModifiers;
 }
 
 + (BOOL)isSecurityAgentActive
@@ -254,9 +256,49 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	return active;
 }
 
++ (BOOL)isFullscreenAppActive
+{
+    //Does the active progress have a window open that covers the entire main screen?
+    ProcessSerialNumber psn;
+    BOOL isFullscreen = NO;
+	
+	if (GetFrontProcess(&psn) == noErr) {
+        CGSConnection targetConnection;
+		CGSGetConnectionIDForPSN(_CGSDefaultConnection(), &psn, &targetConnection);
+        
+        int windowCount;
+        CGSGetOnScreenWindowCount(_CGSDefaultConnection(), targetConnection, &windowCount);
+        
+        if (windowCount > 0) {
+            int outCount;
+            int *list = malloc(sizeof(int) * windowCount);
+            
+			if (CGSGetOnScreenWindowList(_CGSDefaultConnection(), targetConnection, windowCount, list, &outCount) == kCGErrorSuccess) {
+                for (NSInteger i = 0; i < outCount; i++) {
+                    CGRect cgrect;
+                    CGWindowLevel windowLevel;
+                    
+                    //check the window level (prevents the Finder from returning true)
+                    if (CGSGetWindowLevel(_CGSDefaultConnection(), list[i], &windowLevel) == kCGErrorSuccess && windowLevel > CGWindowLevelForKey(kCGNormalWindowLevelKey)) {
+                        //check the window bounds
+                        if (CGSGetWindowBounds(_CGSDefaultConnection(), list[i], &cgrect) == kCGErrorSuccess) {
+                            if (NSEqualRects([[NSScreen mainScreen] frame], NSRectFromCGRect(cgrect))) {
+                                isFullscreen = YES;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+	}
+	
+	return isFullscreen;
+}
+
 + (NSInteger)getCurrentSpaceIndex
 {
-	NSInteger currentSpace;
+	CGSWorkspace currentSpace;
 	
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess) {
 		if (currentSpace == 65538) {
@@ -271,7 +313,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column
 {
-	NSInteger currentSpace;
+	CGSWorkspace currentSpace;
 	
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess) {
 		if (currentSpace == 65538) {
@@ -418,7 +460,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 
 + (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge
 {
-	if (!_timeMachineActive && ![self isSecurityAgentActive]) {
+	if (!_timeMachineActive && ![self isSecurityAgentActive] && ![self isFullscreenAppActive]) {
 		CGPoint mouseLocation, warpLocation;
 		NSInteger row, col;
 		BOOL switchedSpace = NO;
@@ -499,7 +541,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 
 + (BOOL)switchToSpaceIndex:(NSInteger)index
 {
-	NSInteger currentSpace;
+	CGSWorkspace currentSpace;
 	
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && currentSpace != index + 1) {
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:SwitchSpacesNotification object:[NSString stringWithFormat:@"%d", index]];

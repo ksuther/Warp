@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 12/14/08.
-//  Copyright 2008-2009 Kent Sutherland. All rights reserved.
+//  Copyright 2008-2011 Kent Sutherland. All rights reserved.
 //
 
 #import "CloseButtonLayer.h"

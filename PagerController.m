@@ -3,7 +3,7 @@
 //  Warp
 //
 //  Created by Kent Sutherland on 11/21/08.
-//  Copyright 2008-2009 Kent Sutherland. All rights reserved.
+//  Copyright 2008-2011 Kent Sutherland. All rights reserved.
 //
 
 #import "MainController.h"
@@ -11,7 +11,6 @@
 #import "PagerPanel.h"
 #import "PagerView.h"
 #import "MainController.h"
-#import "CGSPrivate.h"
 #import "CloseButtonLayer.h"
 
 extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRect rect, NSInteger cid, CGWindowID wid, NSInteger flags);
@@ -195,7 +194,7 @@ static const CGFloat PagerBorderWidth = 5;
 		}
 	} else {
 		NSInteger workspace = layer.zPosition;
-		NSInteger currentSpace = 0;
+		CGSWorkspace currentSpace = 0;
 		
 		//Draw the desktop background for the active space
 		if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && workspace == currentSpace) {
@@ -215,7 +214,7 @@ static const CGFloat PagerBorderWidth = 5;
 		}
 		
 		//Draw the live preview
-		NSInteger windowCount;
+		int windowCount;
 		CGSGetWorkspaceWindowCount(_CGSDefaultConnection(), workspace, &windowCount);
 		
 		NSRect cellFrame = NSRectFromCGRect(layer.frame);
@@ -223,13 +222,13 @@ static const CGFloat PagerBorderWidth = 5;
 		if (windowCount > 0) {
 			static const CGFloat BorderPercentage = 0.02;
 			
-			NSInteger outCount;
+			int outCount;
 			NSInteger cid = [NSApp contextID];
 			CGRect cgrect;
 			
 			CGColorRef borderColor = CGColorCreateGenericGray(0.5, 1.0);
 			
-			NSInteger *list = malloc(sizeof(NSInteger) * windowCount);
+			int *list = malloc(sizeof(int) * windowCount);
 			CGSGetWorkspaceWindowList(_CGSDefaultConnection(), workspace, windowCount, list, &outCount);
 			
 			NSSize screenSize = [[NSScreen mainScreen] frame].size;
@@ -485,7 +484,7 @@ static const CGFloat PagerBorderWidth = 5;
 
 - (void)_updateActiveSpace
 {
-	NSInteger previousSpace = _activeSpace;
+	CGSWorkspace previousSpace = _activeSpace;
 	
 	CGSGetWorkspace(_CGSDefaultConnection(), &_activeSpace);
 	

@@ -26,7 +26,6 @@
 		374345FC0D63A83900189144 /* WarpEdgeWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 374345FB0D63A83900189144 /* WarpEdgeWindow.m */; };
 		3743464A0D63ADCC00189144 /* WarpEdgeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 374346490D63ADCC00189144 /* WarpEdgeView.m */; };
 		374347280D63CC7000189144 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 374347270D63CC7000189144 /* QuartzCore.framework */; };
-		37434A610D64BEF600189144 /* ScreenSaver.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37434A600D64BEF600189144 /* ScreenSaver.framework */; };
 		374CCBCF0EF1EC6E00C1D359 /* SRCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC50EF1EC6E00C1D359 /* SRCommon.m */; };
 		374CCBD00EF1EC6E00C1D359 /* SRKeyCodeTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC70EF1EC6E00C1D359 /* SRKeyCodeTransformer.m */; };
 		374CCBD10EF1EC6E00C1D359 /* SRRecorderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 374CCBC90EF1EC6E00C1D359 /* SRRecorderCell.m */; };
@@ -119,7 +118,6 @@
 		374346490D63ADCC00189144 /* WarpEdgeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WarpEdgeView.m; sourceTree = "<group>"; };
 		374347270D63CC7000189144 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		37434A5F0D64BEEA00189144 /* ScreenSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaver.h; sourceTree = "<group>"; };
-		37434A600D64BEF600189144 /* ScreenSaver.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScreenSaver.framework; path = /System/Library/Frameworks/ScreenSaver.framework; sourceTree = "<absolute>"; };
 		37434ACE0D653FA200189144 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37434AD30D6540DA00189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37434AD60D6541E900189144 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Japanese; path = Japanese.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
@@ -192,7 +190,6 @@
 				3790F65B0CDA73C400A034FA /* Carbon.framework in Frameworks */,
 				3790F76B0CDA804300A034FA /* ApplicationServices.framework in Frameworks */,
 				374347280D63CC7000189144 /* QuartzCore.framework in Frameworks */,
-				37434A610D64BEF600189144 /* ScreenSaver.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,7 +219,6 @@
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				374347270D63CC7000189144 /* QuartzCore.framework */,
 				3790F8FC0CDB05F100A034FA /* PreferencePanes.framework */,
-				37434A600D64BEF600189144 /* ScreenSaver.framework */,
 				3790FC180CDEF6F700A034FA /* ScriptingBridge.framework */,
 				375169CF0CE39CDA00B39CD3 /* SystemConfiguration.framework */,
 			);
@@ -391,6 +387,7 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Warp" */;
 			compatibilityVersion = "Xcode 3.0";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -666,8 +663,10 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
@@ -676,10 +675,8 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
