@@ -298,7 +298,7 @@ static const CGFloat PagerBorderWidth = 5;
 						error = GetProcessBundleLocation(&psn, &processLocation);
 						NSAssert1(error == noErr, @"GetProcessBundleLocation() failed! %d", error);
 						
-						NSURL *applicationURL = (NSURL *)CFURLCreateFromFSRef(kCFAllocatorDefault, &processLocation);
+						NSURL *applicationURL = [(NSURL *)CFURLCreateFromFSRef(kCFAllocatorDefault, &processLocation) autorelease];
 						
 						NSImage *image = [[NSWorkspace sharedWorkspace] iconForFile:[applicationURL path]];
 						NSSize imageSize = image.size;

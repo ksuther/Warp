@@ -210,18 +210,17 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 {
 	ProcessSerialNumber number = {kNoProcess, kNoProcess};
 	NSDictionary *processInfo;
-	
-	while (GetNextProcess(&number) == noErr)  {
-		processInfo = (NSDictionary *)ProcessInformationCopyDictionary(&number, kProcessDictionaryIncludeAllInformationMask);
-		
-		if ([[processInfo objectForKey:(NSString *)kCFBundleIdentifierKey] isEqualToString:WarpBundleIdentifier]) {
-			return YES;
+	BOOL isRunning = NO;
+    
+	while (!isRunning && GetNextProcess(&number) == noErr)  {
+		processInfo = [NSMakeCollectable(ProcessInformationCopyDictionary(&number, kProcessDictionaryIncludeAllInformationMask)) autorelease];
+        
+		if ([[(NSDictionary *)processInfo objectForKey:(NSString *)kCFBundleIdentifierKey] isEqualToString:WarpBundleIdentifier]) {
+			isRunning = YES;
 		}
-		
-		[processInfo release];
 	}
 	
-	return NO;
+	return isRunning;
 }
 
 - (void)setWarpEnabled:(BOOL)enabled
@@ -379,7 +378,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	NSString *string = [[NSString alloc] initWithData:_updateResponseData encoding:NSASCIIStringEncoding];
+	NSString *string = [[[NSString alloc] initWithData:_updateResponseData encoding:NSASCIIStringEncoding] autorelease];
 	NSArray *lines = [string componentsSeparatedByString:@"\n"];
 	NSDictionary *infoDictionary = [[self bundle] infoDictionary];
 	NSString *currentVersionString = [infoDictionary objectForKey:@"CFBundleVersion"];

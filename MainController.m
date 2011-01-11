@@ -476,7 +476,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 + (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge
 {
 	if (!_timeMachineActive && ![self isSecurityAgentActive] && ![self isFullscreenAppActive]) {
-		CGPoint mouseLocation, warpLocation;
+		CGPoint mouseLocation = CGPointZero, warpLocation = CGPointZero;
 		NSInteger row, col;
 		BOOL switchedSpace = NO;
 		NSUserDefaults *df = [NSUserDefaults standardUserDefaults];
