@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>Warp</string>
 	<key>CFBundleVersion</key>
-	<string>1.2.2</string>
+	<string>1.2.3</string>
 	<key>LSUIElement</key>
 	<string>1</string>
 	<key>NSMainNibFile</key>
