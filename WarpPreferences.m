@@ -52,7 +52,7 @@ NSString *WarpBundleIdentifier = @"com.ksuther.warp";
 
 - (id)initWithBundle:(NSBundle *)bundle
 {
-	if ([super initWithBundle:bundle]) {
+	if ( (self = [super initWithBundle:bundle]) ) {
 		defaults = [[WarpDefaults alloc] init];
 		_updateResponseData = [[NSMutableData alloc] init];
 	}
