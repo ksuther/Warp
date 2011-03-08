@@ -176,7 +176,10 @@ extern OSStatus CGContextCopyWindowCaptureContentsToRect(CGContextRef ctx, CGRec
 	[_animation setDelegate:self];
 	[_animation startAnimation];
 	
-	[self removeTrackingArea:_trackingArea];
+    if (_trackingArea) {
+        [self removeTrackingArea:_trackingArea];
+        _trackingArea = nil;
+    }
 }
 
 - (void)animationDidEnd:(NSAnimation *)animation
