@@ -105,6 +105,8 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Warp_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Warp_Prefix.pch; sourceTree = "<group>"; };
+		3708015F136FD08E0052A868 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Spanish; path = Spanish.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37080165136FD0A70052A868 /* Spanish */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Spanish; path = Spanish.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
 		371A1E790D1B6B2700266F70 /* Warp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Warp.icns; sourceTree = "<group>"; };
 		371C7F900D4092C30013C101 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		371C7FA50D4092FC0013C101 /* French */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = French; path = French.lproj/WarpPreferences.xib; sourceTree = "<group>"; };
@@ -396,6 +398,7 @@
 				zh_TW,
 				Dutch,
 				sv,
+				Spanish,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Warp */;
 			projectDirPath = "";
@@ -521,6 +524,7 @@
 				371C7FAF0D4116030013C101 /* Italian */,
 				37434ACE0D653FA200189144 /* German */,
 				37434AD30D6540DA00189144 /* Japanese */,
+				3708015F136FD08E0052A868 /* Spanish */,
 				372192560D86486D006387D2 /* zh_TW */,
 			);
 			name = Localizable.strings;
@@ -534,6 +538,7 @@
 				371C7FB30D4116A10013C101 /* Italian */,
 				37434AD60D6541E900189144 /* Japanese */,
 				37434AD70D6541EE00189144 /* German */,
+				37080165136FD0A70052A868 /* Spanish */,
 				372192550D864868006387D2 /* zh_TW */,
 			);
 			name = WarpPreferences.xib;
