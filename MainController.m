@@ -25,6 +25,7 @@
 #import "WarpEdgeWindow.h"
 #import "CGSPrivate.h"
 #import "PagerController.h"
+#import "spaces.h"
 
 static const int WarpCornerPadding = 30;
 
@@ -39,6 +40,10 @@ NSTimer *_warpTimer = nil;
 
 BOOL _timeMachineActive = NO;
 
+/* BKE ADDED START */
+NSDictionary *spaceMap = nil;
+/* BKE ADDED END */
+
 BOOL equalEdges(Edge *edge1, Edge *edge2)
 {
 	return (edge1 == edge2) || (edge1 && edge2 &&
@@ -50,7 +55,9 @@ BOOL equalEdges(Edge *edge1, Edge *edge2)
 
 Edge * edgeForValue(Edge *edge, CGFloat value) {
 	while (edge) {
-		if (edge->point == value) {
+        /* BKE FIX: trunc() added */
+		//if (edge->point == value) {
+        if (edge->point == trunc(value)) {
 			return edge;
 		}
 		edge = edge->next;
@@ -62,8 +69,10 @@ Edge * edgeForValue(Edge *edge, CGFloat value) {
 Edge * edgeForValueInRange(Edge *edge, CGFloat value, float rangeValue) {
 	Edge *result;
 	
-	if ( (result = edgeForValue(edge, value)) && WarpLocationInRange(rangeValue, result->range)) {
-		return result;
+	if ((result = edgeForValue(edge, value))) {
+        if (WarpLocationInRange(rangeValue, result->range)) {
+            return result;
+        }
 	}
 	
 	return nil;
@@ -314,17 +323,103 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 + (NSInteger)getCurrentSpaceIndex
 {
 	CGSWorkspace currentSpace;
-	
+    
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess) {
 		if (currentSpace == 65538) {
 			return -1;
 		}
-		
+		/* BKE FIX: ADDED START */
+        currentSpace = [self currentSpaceIdx];
+		/* BKE FIX: ADDED END */
+        
 		return currentSpace;
 	} else {
 		return -1;
 	}
 }
+
+/* BKE added functionality START */
+
+/* Used parts of code from project: https://github.com/sdsykes/Change-Space */
+
++ (NSString *) spaceKey:(NSUInteger)spaceNumber
+{
+    NSString *str = [NSString stringWithFormat:@"space_%d", spaceNumber];
+    return str;
+}
+
++ (NSDictionary *) remapDesktops
+{
+    NSMutableDictionary *map = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInt:1], @"space_1", nil];
+    
+    NSUInteger savedSpaceId = get_space_id();  
+    NSUInteger totalSpaces = total_spaces();
+    
+    for (int i = 2; i <= totalSpaces; i++) {
+        set_space_by_index((unsigned int)(i - 1));
+        [NSThread sleepForTimeInterval:DESKTOP_MOVE_DELAY];
+        NSUInteger currentSpaceId = get_space_id();
+        [map setValue:[NSNumber numberWithInt:i] forKey:[self spaceKey:currentSpaceId]];
+    }
+    
+    NSNumber *savedSpaceNumber = (NSNumber *)[map valueForKey:[self spaceKey:savedSpaceId]];
+    if (!savedSpaceNumber) {
+        [map setValue:[NSNumber numberWithInt:0] forKey:[self spaceKey:savedSpaceId]];
+    } else {
+        set_space_by_index([savedSpaceNumber unsignedIntValue] - 1);
+    }
+    
+    return map;
+}
+
+// returns 0 for an unknown space, or full screen app space
++ (NSInteger) currentSpaceIdx
+{
+    NSUInteger currentSpaceId = get_space_id();
+    
+    NSNumber *spaceNumber = nil;
+    NSUInteger spaceNumberInt = 0;
+    
+    if (spaceMap != nil)
+    {
+        spaceNumber = [spaceMap valueForKey:[MainController spaceKey:currentSpaceId]];
+        spaceNumberInt = [spaceNumber unsignedIntValue];
+    }
+    
+    if (!spaceNumber || spaceNumberInt > total_spaces()) {
+        if (is_full_screen()) return 0;
+        if (spaceMap != nil) [spaceMap release];
+        spaceMap = [MainController remapDesktops];
+    }
+    
+    spaceNumber = [spaceMap valueForKey:[MainController spaceKey:currentSpaceId]];
+    
+    return [spaceNumber intValue];
+}
+
++ (NSUInteger) fourCharCode:(char *)s
+{
+    return (s[0] << 24) + (s[1] << 16) + (s[2] << 8) + s[3];
+}
+
++ (void) setSpaceOne {
+    /* BKE FIX: ADDED START */
+    // wait for it to happen
+    usleep(6000);
+    /* BKE FIX: ADDED END */
+    id sb = [SBApplication applicationWithBundleIdentifier:@"com.apple.SystemEvents"];
+    // the cast to id is a hack to avoid the type warning, and the call to performSelector is a hack to
+    // avoid the semantic warning when calling keystroke:using: directly
+    [sb performSelector:@selector(keystroke:using:) withObject:@"1" withObject:(id)[self fourCharCode:"Kctl"]];
+}
+
++ (void) setSpaceWithoutTransition:(unsigned int)spaceIndex
+{
+    if (spaceIndex == 0) [self setSpaceOne];
+    else set_space_by_index(spaceIndex);
+}
+
+/* BKE added functionality END */
 
 + (NSInteger)getCurrentSpaceRow:(NSInteger *)row column:(NSInteger *)column
 {
@@ -335,9 +430,11 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 			return -1;
 		}
 		
+        currentSpace = [self currentSpaceIdx];
+        
 		//Figure out the current row and column based on the number of rows and columns
 		NSInteger cols = [self numberOfSpacesColumns];
-		
+        
 		*row = ((currentSpace - 1) / cols) + 1;
 		*column = currentSpace % cols;
 		
@@ -355,7 +452,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 {
 	NSInteger rows = [MainController numberOfSpacesRows];
 	NSInteger cols = [MainController numberOfSpacesColumns];
-	
+
 	switch (direction) {
 		case LeftDirection:
 			if (_wraparound && col == 1 && cols > 1) {
@@ -418,7 +515,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	if ([MainController getCurrentSpaceRow:&row column:&col] == -1) {
 		return NSMakePoint(-1, -1);
 	}
-	
+
 	return [self getSpaceInDirection:direction row:row column:col];
 }
 
@@ -426,9 +523,13 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 {
 	NSInteger rows = [self numberOfSpacesRows];
 	NSInteger cols = [self numberOfSpacesColumns];
-	NSInteger targetSpace = ((row - 1) * cols) + column - 1;
+    /* BKE FIX: Fix +-1 */
+    //NSInteger targetSpace = ((row - 1) * cols) + column - 1;
+	NSInteger targetSpace = ((row - 1) * cols) + column;
 	
-	return (row <= rows && column <= cols && row > 0 && column > 0 && targetSpace >= 0 && targetSpace < rows * cols) ? targetSpace : -1;
+    /* BKE FIX: Fix +-1 */
+    //return (row <= rows && column <= cols && row > 0 && column > 0 && targetSpace >= 0 && targetSpace < rows * cols) ? targetSpace : -1;
+	return (row <= rows && column <= cols && row > 0 && column > 0 && targetSpace > 0 && targetSpace <= rows * cols) ? targetSpace : -1;
 }
 
 + (void)timerFired:(NSTimer *)timer
@@ -441,10 +542,13 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	
 	HIGetMousePosition(kHICoordSpaceScreenPixel, NULL, &mouseLocation);
 	
+    /* BKE FIX: FIXED with trunc() */
 	if (direction == UpDirection || direction == DownDirection) {
-		onEdge = edge->point == mouseLocation.y;
+		//onEdge = edge->point == mouseLocation.y;
+		onEdge = edge->point == trunc(mouseLocation.y);
 	} else {
-		onEdge = edge->point == mouseLocation.x;
+		//onEdge = edge->point == mouseLocation.x;
+		onEdge = edge->point == trunc(mouseLocation.x);
 	}
 	
 	if (onEdge && [self requiredModifiersDown]) {
@@ -475,7 +579,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 
 + (void)warpInDirection:(NSUInteger)direction edge:(Edge *)edge
 {
-	if (!_timeMachineActive && ![self isSecurityAgentActive] && ![self isFullscreenAppActive]) {
+    if (!_timeMachineActive && ![self isSecurityAgentActive] && ![self isFullscreenAppActive]) {
 		CGPoint mouseLocation = CGPointZero, warpLocation = CGPointZero;
 		NSInteger row, col;
 		BOOL switchedSpace = NO;
@@ -494,7 +598,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 		NSPoint newSpace = [self getSpaceInDirection:direction];
 		row = newSpace.y;
 		col = newSpace.x;
-		
+        
 		BOOL validEdgeDirection = edge->isLeftOrTop;
 		
 		if (direction == RightDirection || direction == DownDirection) {
@@ -505,7 +609,7 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 			switchedSpace = [MainController switchToSpaceRow:row column:col];
 		}
 		
-		if (switchedSpace) {
+        if (switchedSpace) {
 			switch (direction) {
 				case LeftDirection:
 					warpLocation.x = _totalScreenRect.origin.x + _totalScreenRect.size.width - WarpCornerPadding;
@@ -545,9 +649,11 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 + (BOOL)switchToSpaceRow:(NSInteger)row column:(NSInteger)column
 {
 	NSInteger targetSpace;
-	
+	    
 	if ((targetSpace = [self spacesIndexForRow:row column:column]) > -1) {
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:SwitchSpacesNotification object:[NSString stringWithFormat:@"%d", targetSpace]];
+        /* BKE FIX: replaced setting current Space */
+		//[[NSDistributedNotificationCenter defaultCenter] postNotificationName:SwitchSpacesNotification object:[NSString stringWithFormat:@"%d", targetSpace]];
+        [MainController setSpaceWithoutTransition:targetSpace - 1];
 		return YES;
 	}
 	
@@ -559,7 +665,9 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 	CGSWorkspace currentSpace;
 	
 	if (CGSGetWorkspace(_CGSDefaultConnection(), &currentSpace) == kCGErrorSuccess && currentSpace != index + 1) {
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:SwitchSpacesNotification object:[NSString stringWithFormat:@"%d", index]];
+        /* BKE FIX: replaced setting current Space */
+		//[[NSDistributedNotificationCenter defaultCenter] postNotificationName:SwitchSpacesNotification object:[NSString stringWithFormat:@"%d", index]];
+        [MainController setSpaceWithoutTransition:index - 1];
 		return YES;
 	}
 	
@@ -705,9 +813,11 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 		
 		#ifdef TEST_BOUNDS
 			CGRect testDisplays[2];
-			testDisplays[0] = CGRectMake(0, 0, 1600, 1200);
-			testDisplays[1] = CGRectMake(1200, -768, 1024, 768);
-			count = 2;
+            //testDisplays[0] = CGRectMake(0, 0, 1600, 1200);
+            testDisplays[0] = CGRectMake(0, 0, 1440, 900);
+			//testDisplays[1] = CGRectMake(1200, -768, 1024, 768);
+            //count = 2;
+            count = 1;
 		#endif
 		
 		for (NSUInteger i = 0; i < count; i++) {
@@ -715,7 +825,9 @@ static OSStatus hotKeyEventHandler(EventHandlerCallRef inHandlerRef, EventRef in
 			
 			#ifdef TEST_BOUNDS
 				bounds = testDisplays[i];
-				NSLog(@"bounds: %@", NSStringFromRect(*(NSRect *)&bounds));
+                NSLog(@"bounds: %@", NSStringFromRect(*(NSRect *)&bounds));
+                CGRect realBounds = CGDisplayBounds(displays[i]);
+                NSLog(@"real bounds: %@", NSStringFromRect(*(NSRect *)&realBounds));
 			#else
 				bounds = CGDisplayBounds(displays[i]);
 			#endif

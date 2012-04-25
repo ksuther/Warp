@@ -23,6 +23,9 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
+/* BKE ADDED START */
+#import <ScriptingBridge/ScriptingBridge.h>
+/* BKE ADDED END */
 #import "WarpRange.h"
 
 typedef struct {
@@ -67,6 +70,14 @@ enum {
 + (BOOL)switchToSpaceRow:(NSInteger)row column:(NSInteger)column;
 + (BOOL)switchToSpaceIndex:(NSInteger)index;
 + (NSInteger)spacesIndexForRow:(NSInteger)row column:(NSInteger)column;
+
+/* BKE ADDED START */
+// how long we must wait before asking the current space when moving
+#define DESKTOP_MOVE_DELAY 0.4f
+
++ (NSInteger) currentSpaceIdx;
++ (void) setSpaceWithoutTransition:(unsigned int)spaceIndex;
+/* BKE ADDED END */
 
 - (void)updateWarpRects;
 
